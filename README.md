@@ -1,201 +1,201 @@
-# Task List Manager
+# 📋 Task Manager — Gerenciamento de Projetos e Tarefas
 
-Uma aplicação responsiva de gerenciamento de projetos e tarefas com armazenamento local (localStorage), construída com React 19, Vite e Tailwind CSS.
+**Projeto Integrador III - B | PUC Goiás**
 
-## Características
+**Alunos:** Livia Moreira Rocha e Igor Leandro Catulio dos Anjos
 
-- ✅ **Gerenciamento de Projetos**: Crie e organize múltiplos projetos
-- ✅ **Gerenciamento de Tarefas**: Adicione, edite e delete tarefas
-- ✅ **Status e Prioridade**: Controle o status (pendente, em progresso, concluído) e prioridade (baixa, média, alta) das tarefas
-- ✅ **Filtros Avançados**: Busque por título/descrição, filtre por status e prioridade
-- ✅ **Armazenamento Local**: Todos os dados são salvos no localStorage do navegador
-- ✅ **Design Responsivo**: Interface otimizada para desktop, tablet e mobile
-- ✅ **Estatísticas**: Visualize progresso dos projetos em tempo real
+Sistema web de gerenciamento de projetos e tarefas no estilo Kanban (inspirado no Jira), com autenticação, colaboração entre membros, drag & drop e visualização em calendário.
 
-## Stack Tecnológico
+🔗 **Produção:** [gerenciamentode-projetos.vercel.app](https://gerenciamentode-projetos-456m2ij89-liviamors-projects.vercel.app)
 
-- **Frontend**: React 19 + TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS 4
-- **UI Components**: shadcn/ui
-- **State Management**: React Context + localStorage
-- **Package Manager**: pnpm
+---
+
+## Funcionalidades
+
+- **Autenticação completa** — Cadastro e login com Supabase Auth, upload de foto de perfil
+- **Projetos colaborativos** — Crie projetos e adicione membros por nome de usuário
+- **Kanban Board** — Colunas "A Fazer", "Em Progresso" e "Concluído" com drag & drop
+- **Visualização em Calendário** — Tarefas mapeadas por data de entrega (due_date)
+- **Filtros e busca** — Pesquise por título/descrição, filtre por prioridade
+- **Responsivo** — Interface adaptada para desktop, tablet e mobile
+- **Row Level Security** — Cada usuário só vê projetos e tarefas dos quais é membro
+- **CI/CD** — Deploy automático via Vercel com GitHub Actions
+
+---
+
+## Stack Tecnológica
+
+| Camada | Tecnologia |
+|--------|-----------|
+| Frontend | React 19 + TypeScript + Vite |
+| Estilização | Tailwind CSS 4 + shadcn/ui |
+| Backend (BaaS) | Supabase (PostgreSQL, Auth, Storage) |
+| State Management | TanStack Query (React Query) + Context API |
+| Drag & Drop | @hello-pangea/dnd |
+| Datas | date-fns |
+| Ícones | lucide-react |
+| Deploy | Vercel |
+| CI | GitHub Actions |
+| Package Manager | pnpm |
+
+---
+
+## Arquitetura do Banco de Dados
+
+```
+auth.users (Supabase Auth)
+    │
+    ▼ (trigger: auto-create profile)
+profiles (id, username, avatar_url)
+    │
+    ├──► projects (id, name, description, color, created_by)
+    │        │
+    │        ├──► project_members (project_id, user_id, role)
+    │        │
+    │        └──► tasks (id, title, status, priority, due_date, assigned_to, order)
+```
+
+- **Relacionamento N:N** entre usuários e projetos via `project_members`
+- **RLS (Row Level Security)** ativo em todas as tabelas
+- **UUID v4** como chaves primárias
+- **Trigger automático** para criação de perfil no cadastro
+
+---
 
 ## Instalação Local
 
 ### Pré-requisitos
 
 - Node.js 18+
-- pnpm (ou npm/yarn)
+- pnpm (`npm install -g pnpm`)
+- Conta no [Supabase](https://supabase.com)
 
-### Passos
-
-1. Clone o repositório:
-
-```bash
-git clone <seu-repositorio>
-cd task-list-manager
-```
-
-2. Instale as dependências:
+### 1. Clone e instale
 
 ```bash
+git clone https://github.com/seu-usuario/GerenciamentodeProjetos.git
+cd GerenciamentodeProjetos
 pnpm install
 ```
 
-3. Inicie o servidor de desenvolvimento:
+### 2. Configure o Supabase
+
+1. Crie um projeto no [Supabase Dashboard](https://supabase.com/dashboard)
+2. Vá em **SQL Editor** e execute o conteúdo de `supabase/schema.sql`
+3. Copie a **Project URL** e **anon key** em **Settings → API**
+
+### 3. Configure as variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_SUPABASE_ANON_KEY=sua-anon-key-aqui
+```
+
+### 4. Rode o projeto
 
 ```bash
 pnpm dev
 ```
 
-4. Abra [http://localhost:3000](http://localhost:3000) no seu navegador
+Acesse [http://localhost:3000](http://localhost:3000)
 
-## Desenvolvimento
+---
 
-### Comandos Disponíveis
+## Comandos Disponíveis
 
-- `pnpm dev` - Inicia o servidor de desenvolvimento
-- `pnpm build` - Compila para produção
-- `pnpm preview` - Visualiza a build de produção localmente
-- `pnpm check` - Verifica tipos TypeScript
-- `pnpm format` - Formata o código com Prettier
+| Comando | Descrição |
+|---------|-----------|
+| `pnpm dev` | Servidor de desenvolvimento |
+| `pnpm build` | Build completo (client + server) |
+| `pnpm build:client` | Build apenas do frontend |
+| `pnpm check` | Verificação de tipos TypeScript |
+| `pnpm format` | Formata código com Prettier |
+| `pnpm preview` | Preview da build de produção |
 
-## Deploy no Vercel
-
-### Opção 1: Via Git (Recomendado)
-
-1. Faça push do projeto para GitHub, GitLab ou Bitbucket
-2. Acesse [vercel.com](https://vercel.com)
-3. Clique em "New Project"
-4. Selecione seu repositório
-5. Vercel detectará automaticamente as configurações (Vite)
-6. Clique em "Deploy"
-
-### Opção 2: Via Vercel CLI
-
-1. Instale a CLI do Vercel:
-
-```bash
-npm i -g vercel
-```
-
-2. Deploy:
-
-```bash
-vercel
-```
-
-3. Siga as instruções interativas
-
-### Opção 3: Via ZIP (Este Projeto)
-
-1. Extraia o arquivo ZIP
-2. Abra o terminal na pasta do projeto
-3. Execute `pnpm install` e `pnpm build`
-4. Faça upload da pasta `dist/` para o Vercel
+---
 
 ## Estrutura do Projeto
 
 ```
-task-list-manager/
 ├── client/
-│   ├── public/           # Arquivos estáticos
+│   ├── public/                  # Arquivos estáticos (favicon, imagens)
 │   ├── src/
-│   │   ├── components/   # Componentes React reutilizáveis
-│   │   ├── contexts/     # React Contexts (AppContext)
-│   │   ├── hooks/        # Custom hooks (useLocalStorage)
-│   │   ├── pages/        # Páginas da aplicação
-│   │   ├── App.tsx       # Componente raiz
-│   │   ├── main.tsx      # Entry point
-│   │   └── index.css     # Estilos globais
-│   └── index.html        # Template HTML
+│   │   ├── components/          # Componentes React
+│   │   │   ├── KanbanBoard.tsx  # Board com drag & drop
+│   │   │   ├── CalendarView.tsx # Visualização em calendário
+│   │   │   ├── Sidebar.tsx      # Navegação lateral
+│   │   │   ├── MainContent.tsx  # Conteúdo principal
+│   │   │   ├── ManageMembersDialog.tsx  # Gerenciar membros
+│   │   │   ├── TaskCard.tsx     # Card de tarefa
+│   │   │   └── ui/             # Componentes shadcn/ui
+│   │   ├── contexts/
+│   │   │   ├── AuthContext.tsx  # Autenticação (Supabase Auth)
+│   │   │   └── ThemeContext.tsx # Tema claro/escuro
+│   │   ├── hooks/
+│   │   │   ├── useProjects.ts  # CRUD de projetos (React Query)
+│   │   │   ├── useTasks.ts     # CRUD de tarefas (React Query)
+│   │   │   └── useProjectMembers.ts # Membros do projeto
+│   │   ├── lib/
+│   │   │   └── supabase.ts     # Cliente Supabase
+│   │   └── pages/
+│   │       ├── Auth.tsx        # Login / Cadastro
+│   │       └── Home.tsx        # Dashboard principal
+│   └── index.html
+├── server/
+│   └── index.ts                # Servidor Express (produção)
 ├── shared/
-│   └── types.ts          # Tipos TypeScript compartilhados
-├── server/               # Placeholder para compatibilidade
-├── package.json
-├── vite.config.ts
-├── tsconfig.json
-├── tailwind.config.ts
-├── vercel.json           # Configuração do Vercel
-└── README.md
+│   └── types.ts                # Tipos TypeScript compartilhados
+├── supabase/
+│   └── schema.sql              # Schema completo do banco
+├── .github/
+│   └── workflows/ci.yml        # Pipeline CI/CD
+├── vercel.json                 # Configuração Vercel
+└── package.json
 ```
+
+---
+
+## Deploy na Vercel
+
+1. Conecte o repositório GitHub na [Vercel](https://vercel.com)
+2. Adicione as variáveis de ambiente em **Settings → Environment Variables**:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+3. O deploy acontece automaticamente a cada push na branch `main`
+
+---
 
 ## Como Usar
 
+### Cadastro e Login
+1. Acesse o site e crie uma conta com nome de usuário e senha
+2. Opcionalmente, faça upload de uma foto de perfil
+
 ### Criar um Projeto
+1. Clique em **"Novo Projeto"** na sidebar
+2. Escolha nome, descrição e cor
+3. Você é adicionado automaticamente como dono
 
-1. Clique em "Novo Projeto" na sidebar
-2. Digite o nome e descrição (opcional)
-3. Escolha uma cor para o projeto
-4. Clique em "Criar Projeto"
-
-### Adicionar uma Tarefa
-
-1. Selecione um projeto ou clique em "Todas as Tarefas"
-2. Clique em "Nova Tarefa"
-3. Preencha o título, selecione a prioridade
-4. Clique em "Criar Tarefa"
+### Adicionar Membros
+1. Selecione um projeto
+2. Clique no botão **"Membros"** no header
+3. Digite o nome de usuário da pessoa (ela precisa ter conta)
+4. Clique no botão de adicionar
 
 ### Gerenciar Tarefas
+1. Clique em **"Nova Tarefa"** para criar
+2. Arraste os cards entre as colunas do Kanban para mudar o status
+3. Clique em uma tarefa para editar detalhes
+4. Use os filtros de busca e prioridade
 
-- **Mudar Status**: Clique no ícone de status (círculo) para ciclar entre pendente → em progresso → concluído
-- **Editar**: Clique no menu (⋮) e selecione "Editar"
-- **Deletar**: Clique no menu (⋮) e selecione "Deletar"
-- **Filtrar**: Use os filtros de status e prioridade na parte superior
+### Visualização em Calendário
+1. Clique em **"Calendário"** na sidebar
+2. As tarefas aparecem nos dias correspondentes à data de entrega
 
-## Dados Locais
-
-Todos os dados são armazenados no `localStorage` do navegador:
-
-- `app-projects` - Lista de projetos
-- `app-tasks` - Lista de tarefas
-
-**Nota**: Os dados são específicos do navegador e dispositivo. Limpar o cache/cookies do navegador resultará em perda de dados.
-
-## Design
-
-A aplicação segue o design **Minimalismo Funcional com Acentos Quentes**:
-
-- **Cores Primárias**: Laranja quente (#FF6B35) para ações principais
-- **Paleta Neutra**: Tons de cinza para foco e clareza
-- **Tipografia**: Poppins para títulos, Inter para corpo
-- **Espaçamento**: Generoso e respirável
-- **Interações**: Suaves e responsivas
-
-## Responsividade
-
-A aplicação é totalmente responsiva:
-
-- **Desktop**: Layout com sidebar + conteúdo principal
-- **Tablet**: Sidebar colapsível, grid 2 colunas
-- **Mobile**: Sidebar como drawer, grid 1 coluna
-
-## Performance
-
-- Builds otimizados com Vite
-- Code splitting automático
-- Lazy loading de componentes
-- Caching eficiente com localStorage
-
-## Troubleshooting
-
-### Dados não aparecem após reload
-
-Verifique se o localStorage está habilitado no seu navegador.
-
-### Aplicação lenta
-
-Limpe o cache do navegador ou localStorage se houver muitas tarefas (>1000).
-
-### Erro ao fazer build
-
-Execute `pnpm install` novamente e certifique-se de usar Node.js 18+.
+---
 
 ## Licença
 
 MIT
-
-## Suporte
-
-Para reportar bugs ou sugerir melhorias, abra uma issue no repositório.

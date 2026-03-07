@@ -9,12 +9,18 @@ build/
 
 # Environment variables
 .env
+.env.*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
+# Kiro
+.kiro/tasks/
+
 # IDE and editor files
+.kiro/
+*.json
 .vscode/
 .idea/
 *.swp
