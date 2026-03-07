@@ -7,18 +7,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Users } from "lucide-react";
 import { useState, useMemo } from "react";
 import { KanbanBoard } from "./KanbanBoard";
 import { CalendarView } from "./CalendarView";
 import { NewTaskDialog } from "./NewTaskDialog";
 import { EditTaskDialog } from "./EditTaskDialog";
+import { ManageMembersDialog } from "./ManageMembersDialog";
 import {
   Task,
   TaskStatus,
   TaskPriority,
   Project,
   Profile,
+  ProjectMember,
 } from "@shared/types";
 
 interface MainContentProps {
@@ -26,6 +28,7 @@ interface MainContentProps {
   projects: Project[];
   tasks: Task[];
   members: Profile[];
+  rawMembers: ProjectMember[];
   view: "kanban" | "calendar";
   onAddTask: (data: {
     project_id: string;
@@ -40,6 +43,8 @@ interface MainContentProps {
   onReorderTasks: (
     tasks: { id: string; status: TaskStatus; order: number }[]
   ) => void;
+  onAddMember: (data: { userId: string; role?: string }) => void;
+  onRemoveMember: (memberId: string) => void;
 }
 
 export function MainContent({
@@ -47,14 +52,18 @@ export function MainContent({
   projects,
   tasks,
   members,
+  rawMembers,
   view,
   onAddTask,
   onUpdateTask,
   onDeleteTask,
   onReorderTasks,
+  onAddMember,
+  onRemoveMember,
 }: MainContentProps) {
   const [isNewTaskOpen, setIsNewTaskOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isMembersOpen, setIsMembersOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "all">(
     "all"
@@ -100,14 +109,26 @@ export function MainContent({
                 </p>
               )}
             </div>
-            <Button
-              onClick={() => setIsNewTaskOpen(true)}
-              className="text-white shrink-0"
-              style={{ backgroundColor: "#07477c" }}
-            >
-              <Plus className="w-4 h-4 md:mr-2" />
-              <span className="hidden md:inline">Nova Tarefa</span>
-            </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              {selectedProjectId && (
+                <Button
+                  variant="outline"
+                  onClick={() => setIsMembersOpen(true)}
+                  className="border-[#07477c]/30 text-[#07477c]"
+                >
+                  <Users className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">Membros</span>
+                </Button>
+              )}
+              <Button
+                onClick={() => setIsNewTaskOpen(true)}
+                className="text-white"
+                style={{ backgroundColor: "#07477c" }}
+              >
+                <Plus className="w-4 h-4 md:mr-2" />
+                <span className="hidden md:inline">Nova Tarefa</span>
+              </Button>
+            </div>
           </div>
 
           {/* Stats */}
@@ -205,6 +226,16 @@ export function MainContent({
         }}
         onSubmit={onUpdateTask}
       />
+
+      {selectedProjectId && (
+        <ManageMembersDialog
+          open={isMembersOpen}
+          onOpenChange={setIsMembersOpen}
+          members={rawMembers}
+          onAddMember={onAddMember}
+          onRemoveMember={onRemoveMember}
+        />
+      )}
     </>
   );
 }

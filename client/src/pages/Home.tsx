@@ -20,7 +20,8 @@ export default function Home() {
   const { projects, addProject, deleteProject } = useProjects();
   const { tasks, addTask, updateTask, deleteTask, reorderTasks } =
     useTasks(selectedProjectId);
-  const { members } = useProjectMembers(selectedProjectId);
+  const { members, addMember, removeMember } =
+    useProjectMembers(selectedProjectId);
 
   const memberProfiles: Profile[] = useMemo(() => {
     return members.map(m => m.profiles).filter((p): p is Profile => !!p);
@@ -102,11 +103,14 @@ export default function Home() {
           projects={projects}
           tasks={displayTasks}
           members={memberProfiles}
+          rawMembers={members}
           view={view}
           onAddTask={data => addTask.mutate(data)}
           onUpdateTask={(id, updates) => updateTask.mutate({ id, ...updates })}
           onDeleteTask={id => deleteTask.mutate(id)}
           onReorderTasks={tasks => reorderTasks.mutate(tasks)}
+          onAddMember={data => addMember.mutate(data)}
+          onRemoveMember={id => removeMember.mutate(id)}
         />
       </div>
     </div>
