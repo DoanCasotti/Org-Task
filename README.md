@@ -6,7 +6,7 @@
 
 Sistema web de gerenciamento de projetos e tarefas no estilo Kanban (inspirado no Jira), com autenticação, colaboração entre membros, drag & drop e visualização em calendário.
 
-🔗 **Produção:** [gerenciamentode-projetos.vercel.app](https://gerenciamentode-projetos-456m2ij89-liviamors-projects.vercel.app)
+🔗 **Produção:** [gerenciamentode-projetos.vercel.app](https://gerenciamentode-projetos-gsa5qtm4o-liviamors-projects.vercel.app)
 
 ---
 
