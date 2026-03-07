@@ -16,7 +16,7 @@ build/
 .env.production.local
 
 # Kiro
-.kiro/tasks/
+.kiro/
 
 # IDE and editor files
 .kiro/
