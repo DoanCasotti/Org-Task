@@ -95,7 +95,7 @@ export function NewProjectDialog({ open, onOpenChange }: NewProjectDialogProps) 
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleCreate} className="bg-orange-600 hover:bg-orange-700">
+          <Button onClick={handleCreate} className="bg-[#07477c]/80 hover:bg-[#07477c] text-white">
             Criar Projeto
           </Button>
         </div>

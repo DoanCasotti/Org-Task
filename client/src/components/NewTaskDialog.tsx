@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { TaskPriority } from '@/../../shared/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface NewTaskDialogProps {
   projectId: string | null;
@@ -30,6 +30,14 @@ export function NewTaskDialog({ projectId, open, onOpenChange }: NewTaskDialogPr
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [selectedProjectId, setSelectedProjectId] = useState(projectId || '');
+
+  useEffect(() => {
+    if (open) {
+      setSelectedProjectId(projectId || '');
+      setTitle('');
+      setPriority('medium');
+    }
+  }, [open, projectId]);
 
   const handleCreate = () => {
     if (title.trim() && selectedProjectId) {
@@ -51,23 +59,21 @@ export function NewTaskDialog({ projectId, open, onOpenChange }: NewTaskDialogPr
         </DialogHeader>
 
         <div className="space-y-4">
-          {!projectId && (
-            <div>
-              <Label htmlFor="project">Projeto</Label>
-              <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-                <SelectTrigger id="project" className="mt-1">
-                  <SelectValue placeholder="Selecione um projeto" />
-                </SelectTrigger>
-                <SelectContent>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      {project.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          <div>
+            <Label htmlFor="project">Projeto</Label>
+            <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <SelectTrigger id="project" className="mt-1">
+                <SelectValue placeholder="Selecione um projeto" />
+              </SelectTrigger>
+              <SelectContent>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <div>
             <Label htmlFor="taskTitle">Título da Tarefa</Label>
@@ -103,7 +109,7 @@ export function NewTaskDialog({ projectId, open, onOpenChange }: NewTaskDialogPr
           <Button
             onClick={handleCreate}
             disabled={!title.trim() || !selectedProjectId}
-            className="bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
+            className="bg-[#07477c]/80 hover:bg-[#07477c] text-white disabled:opacity-50"
           >
             Criar Tarefa
           </Button>

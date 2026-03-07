@@ -23,7 +23,8 @@ export function Sidebar({ selectedProjectId, onSelectProject }: SidebarProps) {
           </div>
           <Button
             onClick={() => setIsNewProjectOpen(true)}
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+            className="w-full text-white"
+            style={{ backgroundColor: '#07477c' }}
           >
             <Plus className="w-4 h-4 mr-2" />
             Novo Projeto
@@ -36,7 +37,7 @@ export function Sidebar({ selectedProjectId, onSelectProject }: SidebarProps) {
               onClick={() => onSelectProject(null)}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                 selectedProjectId === null
-                  ? 'bg-orange-100 text-orange-700'
+                  ? 'bg-[#07477c]/10 text-[#07477c]'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
@@ -53,7 +54,7 @@ export function Sidebar({ selectedProjectId, onSelectProject }: SidebarProps) {
                   key={project.id}
                   className={`group flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
                     selectedProjectId === project.id
-                      ? 'bg-orange-100'
+                      ? 'bg-[#07477c]/10'
                       : 'hover:bg-gray-100'
                   }`}
                 >
@@ -68,7 +69,7 @@ export function Sidebar({ selectedProjectId, onSelectProject }: SidebarProps) {
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-medium truncate ${
                         selectedProjectId === project.id
-                          ? 'text-orange-700'
+                          ? 'text-[#07477c]'
                           : 'text-gray-700'
                       }`}>
                         {project.name}

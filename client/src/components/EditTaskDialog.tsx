@@ -123,7 +123,7 @@ export function EditTaskDialog({ task, open, onOpenChange }: EditTaskDialogProps
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} className="bg-orange-600 hover:bg-orange-700">
+          <Button onClick={handleSave} className="bg-[#07477c]/80 hover:bg-[#07477c] text-white">
             Salvar
           </Button>
         </div>

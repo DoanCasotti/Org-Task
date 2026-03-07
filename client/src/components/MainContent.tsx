@@ -61,7 +61,8 @@ export function MainContent({ selectedProjectId }: MainContentProps) {
             </div>
             <Button
               onClick={() => setIsNewTaskOpen(true)}
-              className="bg-orange-600 hover:bg-orange-700 text-white"
+              className="text-white"
+              style={{ backgroundColor: '#07477c' }}
             >
               <Plus className="w-4 h-4 mr-2" />
               Nova Tarefa
