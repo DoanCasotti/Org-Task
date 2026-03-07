@@ -47,53 +47,53 @@ export function MainContent({ selectedProjectId }: MainContentProps) {
 
   return (
     <>
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-white min-h-0">
         {/* Header */}
-        <div className="border-b border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+        <div className="border-b border-gray-200 p-4 md:p-6">
+          <div className="flex items-center justify-between mb-4 gap-3">
+            <div className="min-w-0">
+              <h2 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
                 {project ? project.name : 'Todas as Tarefas'}
               </h2>
               {project?.description && (
-                <p className="text-sm text-gray-600 mt-1">{project.description}</p>
+                <p className="text-sm text-gray-600 mt-1 truncate">{project.description}</p>
               )}
             </div>
             <Button
               onClick={() => setIsNewTaskOpen(true)}
-              className="text-white"
+              className="text-white shrink-0"
               style={{ backgroundColor: '#07477c' }}
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Tarefa
+              <Plus className="w-4 h-4 md:mr-2" />
+              <span className="hidden md:inline">Nova Tarefa</span>
             </Button>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-4 gap-3">
-            <div className="bg-gray-50 rounded-lg p-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+            <div className="bg-gray-50 rounded-lg p-2 md:p-3">
               <p className="text-xs text-gray-600">Total</p>
-              <p className="text-xl font-bold text-gray-900">{stats.total}</p>
+              <p className="text-lg md:text-xl font-bold text-gray-900">{stats.total}</p>
             </div>
-            <div className="bg-yellow-50 rounded-lg p-3">
+            <div className="bg-yellow-50 rounded-lg p-2 md:p-3">
               <p className="text-xs text-yellow-600">Pendentes</p>
-              <p className="text-xl font-bold text-yellow-700">{stats.pending}</p>
+              <p className="text-lg md:text-xl font-bold text-yellow-700">{stats.pending}</p>
             </div>
-            <div className="bg-blue-50 rounded-lg p-3">
+            <div className="bg-blue-50 rounded-lg p-2 md:p-3">
               <p className="text-xs text-blue-600">Em Progresso</p>
-              <p className="text-xl font-bold text-blue-700">{stats.inProgress}</p>
+              <p className="text-lg md:text-xl font-bold text-blue-700">{stats.inProgress}</p>
             </div>
-            <div className="bg-green-50 rounded-lg p-3">
+            <div className="bg-green-50 rounded-lg p-2 md:p-3">
               <p className="text-xs text-green-600">Concluídas</p>
-              <p className="text-xl font-bold text-green-700">{stats.completed}</p>
+              <p className="text-lg md:text-xl font-bold text-green-700">{stats.completed}</p>
             </div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="border-b border-gray-200 px-6 py-4 bg-gray-50">
-          <div className="flex gap-3 flex-wrap">
-            <div className="flex-1 min-w-64 relative">
+        <div className="border-b border-gray-200 px-4 md:px-6 py-3 md:py-4 bg-gray-50">
+          <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
+            <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 placeholder="Buscar tarefas..."
@@ -102,37 +102,38 @@ export function MainContent({ selectedProjectId }: MainContentProps) {
                 className="pl-10"
               />
             </div>
+            <div className="flex gap-2">
+              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as TaskStatus | 'all')}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os Status</SelectItem>
+                  <SelectItem value="pending">Pendente</SelectItem>
+                  <SelectItem value="in-progress">Em Progresso</SelectItem>
+                  <SelectItem value="completed">Concluído</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as TaskStatus | 'all')}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os Status</SelectItem>
-                <SelectItem value="pending">Pendente</SelectItem>
-                <SelectItem value="in-progress">Em Progresso</SelectItem>
-                <SelectItem value="completed">Concluído</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v as TaskPriority | 'all')}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as Prioridades</SelectItem>
-                <SelectItem value="low">Baixa</SelectItem>
-                <SelectItem value="medium">Média</SelectItem>
-                <SelectItem value="high">Alta</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v as TaskPriority | 'all')}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas Prioridades</SelectItem>
+                  <SelectItem value="low">Baixa</SelectItem>
+                  <SelectItem value="medium">Média</SelectItem>
+                  <SelectItem value="high">Alta</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
-        {/* Tasks Grid */}
-        <div className="flex-1 overflow-y-auto p-6">
+        {/* Tasks List */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6">
           {filteredTasks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
+            <div className="flex flex-col items-center justify-center h-full text-center px-4">
               <div className="text-gray-400 mb-4">
                 <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -146,7 +147,7 @@ export function MainContent({ selectedProjectId }: MainContentProps) {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4">
               {filteredTasks.map((task) => (
                 <TaskCard key={task.id} task={task} />
               ))}

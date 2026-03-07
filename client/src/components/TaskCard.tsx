@@ -96,7 +96,7 @@ export function TaskCard({ task }: TaskCardProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                className="md:opacity-0 md:group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
               >
                 <MoreVertical className="w-4 h-4" />
               </Button>
