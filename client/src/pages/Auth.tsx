@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { LogIn, UserPlus, Upload } from 'lucide-react';
+import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { LogIn, UserPlus, Upload } from "lucide-react";
 
 export default function Auth() {
   const { signIn, signUp, uploadAvatar } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -33,7 +33,7 @@ export default function Auth() {
       if (error) toast.error(error.message);
     } else {
       if (!username.trim()) {
-        toast.error('Nome de usuário é obrigatório');
+        toast.error("Nome de usuário é obrigatório");
         setSubmitting(false);
         return;
       }
@@ -43,9 +43,9 @@ export default function Auth() {
       } else {
         if (avatarFile) {
           // Avatar será enviado após confirmação do email e primeiro login
-          toast.success('Conta criada! Verifique seu email para confirmar.');
+          toast.success("Conta criada! Verifique seu email para confirmar.");
         } else {
-          toast.success('Conta criada! Verifique seu email para confirmar.');
+          toast.success("Conta criada! Verifique seu email para confirmar.");
         }
       }
     }
@@ -56,14 +56,21 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <img src="/favicon.icon.png" alt="Logo" className="w-12 h-12 mx-auto mb-3" />
+          <img
+            src="/favicon.icon.png"
+            alt="Logo"
+            className="w-12 h-12 mx-auto mb-3"
+          />
           <h1 className="text-2xl font-bold text-gray-900">Task Manager</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {isLogin ? 'Entre na sua conta' : 'Crie sua conta'}
+            {isLogin ? "Entre na sua conta" : "Crie sua conta"}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4"
+        >
           {!isLogin && (
             <>
               <div>
@@ -71,7 +78,7 @@ export default function Auth() {
                 <Input
                   id="username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={e => setUsername(e.target.value)}
                   placeholder="seu_nome"
                   className="mt-1"
                 />
@@ -81,7 +88,11 @@ export default function Auth() {
                 <Label>Foto de perfil (opcional)</Label>
                 <div className="flex items-center gap-3 mt-1">
                   {avatarPreview ? (
-                    <img src={avatarPreview} alt="Preview" className="w-10 h-10 rounded-full object-cover" />
+                    <img
+                      src={avatarPreview}
+                      alt="Preview"
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                       <Upload className="w-4 h-4 text-gray-400" />
@@ -104,7 +115,7 @@ export default function Auth() {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               placeholder="seu@email.com"
               className="mt-1"
               required
@@ -117,7 +128,7 @@ export default function Auth() {
               id="password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
               className="mt-1"
               required
@@ -129,25 +140,29 @@ export default function Auth() {
             type="submit"
             disabled={submitting}
             className="w-full text-white"
-            style={{ backgroundColor: '#07477c' }}
+            style={{ backgroundColor: "#07477c" }}
           >
             {submitting ? (
-              'Aguarde...'
+              "Aguarde..."
             ) : isLogin ? (
-              <><LogIn className="w-4 h-4 mr-2" /> Entrar</>
+              <>
+                <LogIn className="w-4 h-4 mr-2" /> Entrar
+              </>
             ) : (
-              <><UserPlus className="w-4 h-4 mr-2" /> Criar Conta</>
+              <>
+                <UserPlus className="w-4 h-4 mr-2" /> Criar Conta
+              </>
             )}
           </Button>
         </form>
 
         <p className="text-center text-sm text-gray-500 mt-4">
-          {isLogin ? 'Não tem conta?' : 'Já tem conta?'}{' '}
+          {isLogin ? "Não tem conta?" : "Já tem conta?"}{" "}
           <button
             onClick={() => setIsLogin(!isLogin)}
             className="text-[#07477c] font-medium hover:underline"
           >
-            {isLogin ? 'Criar conta' : 'Fazer login'}
+            {isLogin ? "Criar conta" : "Fazer login"}
           </button>
         </p>
       </div>

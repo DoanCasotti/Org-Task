@@ -25,23 +25,26 @@ Uma aplicação responsiva de gerenciamento de projetos e tarefas com armazename
 
 ### Pré-requisitos
 
-- Node.js 18+ 
+- Node.js 18+
 - pnpm (ou npm/yarn)
 
 ### Passos
 
 1. Clone o repositório:
+
 ```bash
 git clone <seu-repositorio>
 cd task-list-manager
 ```
 
 2. Instale as dependências:
+
 ```bash
 pnpm install
 ```
 
 3. Inicie o servidor de desenvolvimento:
+
 ```bash
 pnpm dev
 ```
@@ -72,11 +75,13 @@ pnpm dev
 ### Opção 2: Via Vercel CLI
 
 1. Instale a CLI do Vercel:
+
 ```bash
 npm i -g vercel
 ```
 
 2. Deploy:
+
 ```bash
 vercel
 ```
@@ -142,6 +147,7 @@ task-list-manager/
 ## Dados Locais
 
 Todos os dados são armazenados no `localStorage` do navegador:
+
 - `app-projects` - Lista de projetos
 - `app-tasks` - Lista de tarefas
 
@@ -150,6 +156,7 @@ Todos os dados são armazenados no `localStorage` do navegador:
 ## Design
 
 A aplicação segue o design **Minimalismo Funcional com Acentos Quentes**:
+
 - **Cores Primárias**: Laranja quente (#FF6B35) para ações principais
 - **Paleta Neutra**: Tons de cinza para foco e clareza
 - **Tipografia**: Poppins para títulos, Inter para corpo
@@ -159,6 +166,7 @@ A aplicação segue o design **Minimalismo Funcional com Acentos Quentes**:
 ## Responsividade
 
 A aplicação é totalmente responsiva:
+
 - **Desktop**: Layout com sidebar + conteúdo principal
 - **Tablet**: Sidebar colapsível, grid 2 colunas
 - **Mobile**: Sidebar como drawer, grid 1 coluna
@@ -173,12 +181,15 @@ A aplicação é totalmente responsiva:
 ## Troubleshooting
 
 ### Dados não aparecem após reload
+
 Verifique se o localStorage está habilitado no seu navegador.
 
 ### Aplicação lenta
+
 Limpe o cache do navegador ou localStorage se houver muitas tarefas (>1000).
 
 ### Erro ao fazer build
+
 Execute `pnpm install` novamente e certifique-se de usar Node.js 18+.
 
 ## Licença

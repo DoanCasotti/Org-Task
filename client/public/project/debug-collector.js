@@ -51,7 +51,9 @@
     if (value === undefined) return undefined;
 
     if (typeof value === "string") {
-      return value.length > 1000 ? value.slice(0, 1000) + "...[truncated]" : value;
+      return value.length > 1000
+        ? value.slice(0, 1000) + "...[truncated]"
+        : value;
     }
 
     if (typeof value !== "object") return value;
@@ -155,7 +157,7 @@
       getAttr("data-test-id") ||
       getAttr("data-test") ||
       null;
-    var type = tag === "input" ? (getAttr("type") || "text") : null;
+    var type = tag === "input" ? getAttr("type") || "text" : null;
     var href = tag === "a" ? getAttr("href") || null : null;
 
     var selectorHint = null;
@@ -208,7 +210,8 @@
     }
 
     if (isSensitiveField(el)) return { masked: true, length: v.length };
-    if (v.length > CONFIG.uiInputMaxLen) v = v.slice(0, CONFIG.uiInputMaxLen) + "…";
+    if (v.length > CONFIG.uiInputMaxLen)
+      v = v.slice(0, CONFIG.uiInputMaxLen) + "…";
     return v;
   }
 
@@ -225,54 +228,92 @@
   }
 
   function installUiEventListeners() {
-    document.addEventListener("click", function (e) {
-      var t = e.target;
-      if (shouldIgnoreTarget(t)) return;
-      logUiEvent("click", { target: describeElement(t), x: e.clientX, y: e.clientY });
-    }, true);
+    document.addEventListener(
+      "click",
+      function (e) {
+        var t = e.target;
+        if (shouldIgnoreTarget(t)) return;
+        logUiEvent("click", {
+          target: describeElement(t),
+          x: e.clientX,
+          y: e.clientY,
+        });
+      },
+      true
+    );
 
-    document.addEventListener("change", function (e) {
-      var t = e.target;
-      if (shouldIgnoreTarget(t)) return;
-      logUiEvent("change", { target: describeElement(t), value: getInputValueSafe(t) });
-    }, true);
+    document.addEventListener(
+      "change",
+      function (e) {
+        var t = e.target;
+        if (shouldIgnoreTarget(t)) return;
+        logUiEvent("change", {
+          target: describeElement(t),
+          value: getInputValueSafe(t),
+        });
+      },
+      true
+    );
 
-    document.addEventListener("focusin", function (e) {
-      var t = e.target;
-      if (shouldIgnoreTarget(t)) return;
-      logUiEvent("focusin", { target: describeElement(t) });
-    }, true);
+    document.addEventListener(
+      "focusin",
+      function (e) {
+        var t = e.target;
+        if (shouldIgnoreTarget(t)) return;
+        logUiEvent("focusin", { target: describeElement(t) });
+      },
+      true
+    );
 
-    document.addEventListener("focusout", function (e) {
-      var t = e.target;
-      if (shouldIgnoreTarget(t)) return;
-      logUiEvent("focusout", { target: describeElement(t), value: getInputValueSafe(t) });
-    }, true);
+    document.addEventListener(
+      "focusout",
+      function (e) {
+        var t = e.target;
+        if (shouldIgnoreTarget(t)) return;
+        logUiEvent("focusout", {
+          target: describeElement(t),
+          value: getInputValueSafe(t),
+        });
+      },
+      true
+    );
 
-    document.addEventListener("keydown", function (e) {
-      if (e.key !== "Enter" && e.key !== "Escape") return;
-      var t = e.target;
-      if (shouldIgnoreTarget(t)) return;
-      logUiEvent("keydown", { key: e.key, target: describeElement(t) });
-    }, true);
+    document.addEventListener(
+      "keydown",
+      function (e) {
+        if (e.key !== "Enter" && e.key !== "Escape") return;
+        var t = e.target;
+        if (shouldIgnoreTarget(t)) return;
+        logUiEvent("keydown", { key: e.key, target: describeElement(t) });
+      },
+      true
+    );
 
-    document.addEventListener("submit", function (e) {
-      var t = e.target;
-      if (shouldIgnoreTarget(t)) return;
-      logUiEvent("submit", { target: describeElement(t) });
-    }, true);
+    document.addEventListener(
+      "submit",
+      function (e) {
+        var t = e.target;
+        if (shouldIgnoreTarget(t)) return;
+        logUiEvent("submit", { target: describeElement(t) });
+      },
+      true
+    );
 
-    window.addEventListener("scroll", function () {
-      var now = Date.now();
-      if (now - store.lastScrollTime < CONFIG.scrollThrottleMs) return;
-      store.lastScrollTime = now;
-      logUiEvent("scroll", {
-        scrollX: window.scrollX,
-        scrollY: window.scrollY,
-        documentHeight: document.documentElement.scrollHeight,
-        viewportHeight: window.innerHeight,
-      });
-    }, { passive: true });
+    window.addEventListener(
+      "scroll",
+      function () {
+        var now = Date.now();
+        if (now - store.lastScrollTime < CONFIG.scrollThrottleMs) return;
+        store.lastScrollTime = now;
+        logUiEvent("scroll", {
+          scrollX: window.scrollX,
+          scrollY: window.scrollY,
+          documentHeight: document.documentElement.scrollHeight,
+          viewportHeight: window.innerHeight,
+        });
+      },
+      { passive: true }
+    );
 
     function nav(reason) {
       logUiEvent("navigate", { reason: reason });
@@ -290,8 +331,12 @@
       nav("replaceState");
     };
 
-    window.addEventListener("popstate", function () { nav("popstate"); });
-    window.addEventListener("hashchange", function () { nav("hashchange"); });
+    window.addEventListener("popstate", function () {
+      nav("popstate");
+    });
+    window.addEventListener("hashchange", function () {
+      nav("hashchange");
+    });
   }
 
   var originalConsole = {
@@ -321,14 +366,16 @@
     store.consoleLogs.push({
       timestamp: Date.now(),
       level: "ERROR",
-      args: [{
-        type: "UncaughtError",
-        message: event.message,
-        filename: event.filename,
-        lineno: event.lineno,
-        colno: event.colno,
-        stack: event.error ? event.error.stack : null,
-      }],
+      args: [
+        {
+          type: "UncaughtError",
+          message: event.message,
+          filename: event.filename,
+          lineno: event.lineno,
+          colno: event.colno,
+          stack: event.error ? event.error.stack : null,
+        },
+      ],
       stack: event.error ? event.error.stack : null,
     });
     pruneBuffer(store.consoleLogs, CONFIG.bufferSize.console);
@@ -345,11 +392,13 @@
     store.consoleLogs.push({
       timestamp: Date.now(),
       level: "ERROR",
-      args: [{
-        type: "UnhandledRejection",
-        reason: reason && reason.message ? reason.message : String(reason),
-        stack: reason && reason.stack ? reason.stack : null,
-      }],
+      args: [
+        {
+          type: "UnhandledRejection",
+          reason: reason && reason.message ? reason.message : String(reason),
+          stack: reason && reason.stack ? reason.stack : null,
+        },
+      ],
       stack: reason && reason.stack ? reason.stack : null,
     });
     pruneBuffer(store.consoleLogs, CONFIG.bufferSize.console);
@@ -363,9 +412,10 @@
   window.fetch = function (input, init) {
     init = init || {};
     var startTime = Date.now();
-    var url = typeof input === "string"
-      ? input
-      : (input && (input.url || input.href || String(input))) || "";
+    var url =
+      typeof input === "string"
+        ? input
+        : (input && (input.url || input.href || String(input))) || "";
     var method = init.method || (input && input.method) || "GET";
 
     if (url.indexOf("/project/") === 0) {
@@ -375,7 +425,9 @@
     var requestHeaders = {};
     try {
       if (init.headers) {
-        requestHeaders = Object.fromEntries(new Headers(init.headers).entries());
+        requestHeaders = Object.fromEntries(
+          new Headers(init.headers).entries()
+        );
       }
     } catch (e) {
       requestHeaders = { _parseError: true };
@@ -398,7 +450,9 @@
     return originalFetch(input, init)
       .then(function (response) {
         entry.duration = Date.now() - startTime;
-        var contentType = (response.headers.get("content-type") || "").toLowerCase();
+        var contentType = (
+          response.headers.get("content-type") || ""
+        ).toLowerCase();
         var contentLength = response.headers.get("content-length");
 
         entry.response = {
@@ -418,9 +472,10 @@
           });
         }
 
-        var isStreaming = contentType.indexOf("text/event-stream") !== -1 ||
-                          contentType.indexOf("application/stream") !== -1 ||
-                          contentType.indexOf("application/x-ndjson") !== -1;
+        var isStreaming =
+          contentType.indexOf("text/event-stream") !== -1 ||
+          contentType.indexOf("application/stream") !== -1 ||
+          contentType.indexOf("application/x-ndjson") !== -1;
         if (isStreaming) {
           entry.response.body = "[Streaming response - not captured]";
           store.networkRequests.push(entry);
@@ -428,19 +483,24 @@
           return response;
         }
 
-        if (contentLength && parseInt(contentLength, 10) > CONFIG.maxBodyLength) {
-          entry.response.body = "[Response too large: " + contentLength + " bytes]";
+        if (
+          contentLength &&
+          parseInt(contentLength, 10) > CONFIG.maxBodyLength
+        ) {
+          entry.response.body =
+            "[Response too large: " + contentLength + " bytes]";
           store.networkRequests.push(entry);
           pruneBuffer(store.networkRequests, CONFIG.bufferSize.network);
           return response;
         }
 
-        var isBinary = contentType.indexOf("image/") !== -1 ||
-                       contentType.indexOf("video/") !== -1 ||
-                       contentType.indexOf("audio/") !== -1 ||
-                       contentType.indexOf("application/octet-stream") !== -1 ||
-                       contentType.indexOf("application/pdf") !== -1 ||
-                       contentType.indexOf("application/zip") !== -1;
+        var isBinary =
+          contentType.indexOf("image/") !== -1 ||
+          contentType.indexOf("video/") !== -1 ||
+          contentType.indexOf("audio/") !== -1 ||
+          contentType.indexOf("application/octet-stream") !== -1 ||
+          contentType.indexOf("application/pdf") !== -1 ||
+          contentType.indexOf("application/zip") !== -1;
         if (isBinary) {
           entry.response.body = "[Binary content: " + contentType + "]";
           store.networkRequests.push(entry);
@@ -455,7 +515,8 @@
             if (text.length <= CONFIG.maxBodyLength) {
               entry.response.body = sanitizeValue(tryParseJson(text));
             } else {
-              entry.response.body = text.slice(0, CONFIG.maxBodyLength) + "...[truncated]";
+              entry.response.body =
+                text.slice(0, CONFIG.maxBodyLength) + "...[truncated]";
             }
           })
           .catch(function () {
@@ -504,21 +565,27 @@
       xhr._debugData.url.indexOf("/project/") !== 0
     ) {
       xhr._debugData.startTime = Date.now();
-      xhr._debugData.requestBody = body ? sanitizeValue(tryParseJson(body)) : null;
+      xhr._debugData.requestBody = body
+        ? sanitizeValue(tryParseJson(body))
+        : null;
 
       xhr.addEventListener("load", function () {
-        var contentType = (xhr.getResponseHeader("content-type") || "").toLowerCase();
+        var contentType = (
+          xhr.getResponseHeader("content-type") || ""
+        ).toLowerCase();
         var responseBody = null;
 
-        var isStreaming = contentType.indexOf("text/event-stream") !== -1 ||
-                          contentType.indexOf("application/stream") !== -1 ||
-                          contentType.indexOf("application/x-ndjson") !== -1;
-        var isBinary = contentType.indexOf("image/") !== -1 ||
-                       contentType.indexOf("video/") !== -1 ||
-                       contentType.indexOf("audio/") !== -1 ||
-                       contentType.indexOf("application/octet-stream") !== -1 ||
-                       contentType.indexOf("application/pdf") !== -1 ||
-                       contentType.indexOf("application/zip") !== -1;
+        var isStreaming =
+          contentType.indexOf("text/event-stream") !== -1 ||
+          contentType.indexOf("application/stream") !== -1 ||
+          contentType.indexOf("application/x-ndjson") !== -1;
+        var isBinary =
+          contentType.indexOf("image/") !== -1 ||
+          contentType.indexOf("video/") !== -1 ||
+          contentType.indexOf("audio/") !== -1 ||
+          contentType.indexOf("application/octet-stream") !== -1 ||
+          contentType.indexOf("application/pdf") !== -1 ||
+          contentType.indexOf("application/zip") !== -1;
 
         if (isStreaming) {
           responseBody = "[Streaming response - not captured]";
@@ -528,7 +595,8 @@
           try {
             var text = xhr.responseText || "";
             if (text.length > CONFIG.maxBodyLength) {
-              responseBody = text.slice(0, CONFIG.maxBodyLength) + "...[truncated]";
+              responseBody =
+                text.slice(0, CONFIG.maxBodyLength) + "...[truncated]";
             } else {
               responseBody = sanitizeValue(tryParseJson(text));
             }
@@ -598,7 +666,11 @@
     var networkRequests = store.networkRequests.splice(0);
     var uiEvents = store.uiEvents.splice(0);
 
-    if (consoleLogs.length === 0 && networkRequests.length === 0 && uiEvents.length === 0) {
+    if (
+      consoleLogs.length === 0 &&
+      networkRequests.length === 0 &&
+      uiEvents.length === 0
+    ) {
       return Promise.resolve();
     }
 
@@ -631,7 +703,11 @@
     var networkRequests = store.networkRequests;
     var uiEvents = store.uiEvents;
 
-    if (consoleLogs.length === 0 && networkRequests.length === 0 && uiEvents.length === 0) {
+    if (
+      consoleLogs.length === 0 &&
+      networkRequests.length === 0 &&
+      uiEvents.length === 0
+    ) {
       return;
     }
 
