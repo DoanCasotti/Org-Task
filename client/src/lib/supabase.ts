@@ -9,4 +9,25 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+  global: {
+    headers: {
+      "X-Client-Info": "task-manager/1.0.0",
+    },
+  },
+});
+
+/** Verifica se o Supabase está acessível */
+export async function checkSupabaseConnection(): Promise<boolean> {
+  try {
+    const { error } = await supabase.from("profiles").select("id").limit(1);
+    return !error;
+  } catch {
+    return false;
+  }
+}

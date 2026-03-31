@@ -36,6 +36,11 @@ export function useTasks(projectId?: string | null) {
       due_date?: string;
       assigned_to?: string;
     }) => {
+      const cleanTitle = input.title.trim();
+      if (!cleanTitle || cleanTitle.length > 500) {
+        throw new Error("Título da tarefa inválido");
+      }
+
       const maxOrder = (query.data ?? []).filter(
         t => t.project_id === input.project_id && t.status === "todo"
       ).length;
@@ -44,6 +49,8 @@ export function useTasks(projectId?: string | null) {
         .from("tasks")
         .insert({
           ...input,
+          title: cleanTitle,
+          description: input.description?.trim() || null,
           status: "todo" as TaskStatus,
           priority: input.priority || "medium",
           order: maxOrder,

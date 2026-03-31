@@ -6,6 +6,13 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { LogIn, UserPlus, Upload } from "lucide-react";
 
+const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+function sanitizeInput(value: string): string {
+  return value.trim().replace(/[<>]/g, "");
+}
+
 export default function Auth() {
   const { signIn, signUp, uploadAvatar } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
@@ -18,37 +25,64 @@ export default function Auth() {
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setAvatarFile(file);
-      setAvatarPreview(URL.createObjectURL(file));
+    if (!file) return;
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast.error("Formato inválido. Use JPEG, PNG, WebP ou GIF.");
+      e.target.value = "";
+      return;
     }
+    if (file.size > MAX_AVATAR_SIZE) {
+      toast.error("Imagem muito grande. Máximo 2MB.");
+      e.target.value = "";
+      return;
+    }
+
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
-    if (isLogin) {
-      const { error } = await signIn(email, password);
-      if (error) toast.error(error.message);
-    } else {
-      if (!username.trim()) {
-        toast.error("Nome de usuário é obrigatório");
-        setSubmitting(false);
-        return;
-      }
-      const { error } = await signUp(email, password, username);
-      if (error) {
-        toast.error(error.message);
+    const cleanEmail = sanitizeInput(email);
+    const cleanPassword = password;
+
+    try {
+      if (isLogin) {
+        const { error } = await signIn(cleanEmail, cleanPassword);
+        if (error) toast.error(error.message);
       } else {
-        if (avatarFile) {
-          // Avatar será enviado após confirmação do email e primeiro login
-          toast.success("Conta criada! Verifique seu email para confirmar.");
+        const cleanUsername = sanitizeInput(username);
+
+        if (!cleanUsername) {
+          toast.error("Nome de usuário é obrigatório");
+          setSubmitting(false);
+          return;
+        }
+        if (cleanUsername.length < 3) {
+          toast.error("Nome de usuário deve ter pelo menos 3 caracteres");
+          setSubmitting(false);
+          return;
+        }
+        if (cleanPassword.length < 6) {
+          toast.error("Senha deve ter pelo menos 6 caracteres");
+          setSubmitting(false);
+          return;
+        }
+
+        const { error } = await signUp(cleanEmail, cleanPassword, cleanUsername);
+        if (error) {
+          toast.error(error.message);
         } else {
           toast.success("Conta criada! Verifique seu email para confirmar.");
         }
       }
+    } catch {
+      toast.error("Erro de conexão. Verifique sua internet e tente novamente.");
     }
+
     setSubmitting(false);
   };
 

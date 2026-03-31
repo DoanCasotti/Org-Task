@@ -196,6 +196,38 @@ Acesse [http://localhost:3000](http://localhost:3000)
 
 ---
 
+## Segurança
+
+### Headers HTTP (Vercel)
+O projeto configura os seguintes headers de segurança automaticamente via `vercel.json`:
+- `Content-Security-Policy` — restringe origens de scripts, estilos, conexões e imagens
+- `Strict-Transport-Security` — força HTTPS com HSTS
+- `X-Frame-Options: DENY` — previne clickjacking
+- `X-Content-Type-Options: nosniff` — previne MIME sniffing
+- `Permissions-Policy` — bloqueia acesso a câmera, microfone e geolocalização
+
+### Banco de Dados
+- **Row Level Security (RLS)** ativo em todas as tabelas
+- Usuários só acessam dados de projetos dos quais são membros
+- Apenas o criador do projeto pode deletá-lo ou gerenciar membros
+
+### Upload de Arquivos
+- Avatares limitados a **2MB**
+- Apenas formatos JPEG, PNG, WebP e GIF são aceitos
+- Cada usuário só pode fazer upload na própria pasta no Storage
+
+### Validação de Inputs
+- Inputs sanitizados no client antes de enviar ao Supabase
+- Validação de tamanho mínimo/máximo em nomes de projeto e tarefas
+- Constraints `CHECK` no banco para status, prioridade e roles
+
+### Tratamento de Erros
+- Stack traces são exibidos apenas em ambiente de desenvolvimento
+- Em produção, o ErrorBoundary mostra mensagem genérica sem expor detalhes internos
+- React Query não retenta em erros de autenticação (JWT/401/403)
+
+---
+
 ## Licença
 
 MIT

@@ -96,12 +96,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function uploadAvatar(file: File): Promise<string | null> {
     if (!user) return null;
-    const ext = file.name.split(".").pop();
+
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) return null;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) return null;
+
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (!ext || !["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) return null;
+
     const path = `${user.id}/avatar.${ext}`;
 
     const { error } = await supabase.storage
       .from("avatars")
-      .upload(path, file, { upsert: true });
+      .upload(path, file, { upsert: true, contentType: file.type });
     if (error) return null;
 
     const { data } = supabase.storage.from("avatars").getPublicUrl(path);

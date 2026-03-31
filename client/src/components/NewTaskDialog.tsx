@@ -158,12 +158,12 @@ export function NewTaskDialog({
           {members.length > 0 && (
             <div>
               <Label>Atribuir a</Label>
-              <Select value={assignedTo} onValueChange={setAssignedTo}>
+              <Select value={assignedTo || "none"} onValueChange={v => setAssignedTo(v === "none" ? "" : v)}>
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Ninguém" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Ninguém</SelectItem>
+                  <SelectItem value="none">Ninguém</SelectItem>
                   {members.map(m => (
                     <SelectItem key={m.id} value={m.id}>
                       {m.username || m.id.slice(0, 8)}

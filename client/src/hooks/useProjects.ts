@@ -31,11 +31,16 @@ export function useProjects() {
       description?: string;
       color?: string;
     }) => {
+      const cleanName = name.trim();
+      if (!cleanName || cleanName.length > 200) {
+        throw new Error("Nome do projeto inválido");
+      }
+
       const { data, error } = await supabase
         .from("projects")
         .insert({
-          name,
-          description,
+          name: cleanName,
+          description: description?.trim() || null,
           color: color || "#07477c",
           created_by: user!.id,
         })

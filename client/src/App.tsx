@@ -13,7 +13,18 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60,
-      retry: 1,
+      retry: (failureCount, error) => {
+        // Não retry em erros de autenticação/autorização
+        const msg = (error as Error)?.message?.toLowerCase() ?? "";
+        if (msg.includes("jwt") || msg.includes("unauthorized") || msg.includes("403")) {
+          return false;
+        }
+        return failureCount < 2;
+      },
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+    },
+    mutations: {
+      retry: 0,
     },
   },
 });
