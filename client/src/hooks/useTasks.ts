@@ -27,6 +27,16 @@ export function useTasks(projectId?: string | null) {
     enabled: !!user,
   });
 
+  const logAudit = async (action: string, entityType: string, entityId: string, details?: Record<string, unknown>) => {
+    await supabase.from("audit_log").insert({
+      user_id: user!.id,
+      action,
+      entity_type: entityType,
+      entity_id: entityId,
+      details,
+    });
+  };
+
   const addTask = useMutation({
     mutationFn: async (input: {
       project_id: string;
@@ -61,7 +71,8 @@ export function useTasks(projectId?: string | null) {
       if (error) throw error;
       return data as Task;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      logAudit("create", "task", data.id, { title: data.title, project_id: data.project_id });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Tarefa criada com sucesso");
     },
@@ -81,20 +92,21 @@ export function useTasks(projectId?: string | null) {
       if (error) throw error;
       return data as Task;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      logAudit("update", "task", data.id, { title: data.title, status: data.status });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    },
-    onError: (error: Error) => {
-      toast.error(`Erro ao atualizar tarefa: ${error.message}`);
     },
   });
 
   const deleteTask = useMutation({
     mutationFn: async (id: string) => {
+      const task = (query.data ?? []).find(t => t.id === id);
       const { error } = await supabase.from("tasks").delete().eq("id", id);
       if (error) throw error;
+      return { id, title: task?.title };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      logAudit("delete", "task", data.id, { title: data.title });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Tarefa removida");
     },

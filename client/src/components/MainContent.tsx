@@ -45,6 +45,7 @@ interface MainContentProps {
   ) => void;
   onAddMember: (data: { userId: string; role?: string }) => void;
   onRemoveMember: (memberId: string) => void;
+  isProjectOwner?: boolean;
 }
 
 export function MainContent({
@@ -60,6 +61,7 @@ export function MainContent({
   onReorderTasks,
   onAddMember,
   onRemoveMember,
+  isProjectOwner = false,
 }: MainContentProps) {
   const [isNewTaskOpen, setIsNewTaskOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -198,6 +200,7 @@ export function MainContent({
               onEditTask={task => setEditingTask(task)}
               onDeleteTask={onDeleteTask}
               onStatusChange={(id, status) => onUpdateTask(id, { status })}
+              isProjectOwner={isProjectOwner}
             />
           ) : (
             <CalendarView

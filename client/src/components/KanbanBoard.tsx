@@ -15,6 +15,7 @@ interface KanbanBoardProps {
   onEditTask: (task: Task) => void;
   onDeleteTask: (id: string) => void;
   onStatusChange: (id: string, status: TaskStatus) => void;
+  isProjectOwner?: boolean;
 }
 
 const columns: { id: TaskStatus; title: string; color: string }[] = [
@@ -29,6 +30,7 @@ export function KanbanBoard({
   onEditTask,
   onDeleteTask,
   onStatusChange,
+  isProjectOwner = false,
 }: KanbanBoardProps) {
   const getColumnTasks = (status: TaskStatus) =>
     tasks.filter(t => t.status === status).sort((a, b) => a.order - b.order);
@@ -124,6 +126,7 @@ export function KanbanBoard({
                               onStatusChange={status =>
                                 onStatusChange(task.id, status)
                               }
+                              canDelete={isProjectOwner}
                             />
                           </div>
                         )}

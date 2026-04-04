@@ -58,6 +58,9 @@ export default function Home() {
     setSidebarOpen(false);
   };
 
+  const selectedProject = projects.find(p => p.id === selectedProjectId);
+  const isProjectOwner = selectedProject?.created_by === user?.id;
+
   return (
     <div className="flex h-screen bg-white relative">
       {sidebarOpen && (
@@ -111,6 +114,7 @@ export default function Home() {
           onReorderTasks={tasks => reorderTasks.mutate(tasks)}
           onAddMember={data => addMember.mutate(data)}
           onRemoveMember={id => removeMember.mutate(id)}
+          isProjectOwner={isProjectOwner}
         />
       </div>
     </div>

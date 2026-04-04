@@ -96,6 +96,15 @@ create policy "Usuário se adiciona como membro"
   on public.project_members for insert to authenticated
   with check (user_id = auth.uid());
 
+drop policy if exists "Owner insere membros" on public.project_members;
+create policy "Owner insere membros"
+  on public.project_members for insert to authenticated
+  with check (
+    project_id in (
+      select id from public.projects where created_by = auth.uid()
+    )
+  );
+
 -- Tasks
 drop policy if exists "Membros veem tarefas do projeto" on public.tasks;
 create policy "Membros veem tarefas do projeto"
@@ -103,9 +112,23 @@ create policy "Membros veem tarefas do projeto"
   using (project_id in (select project_id from public.project_members where user_id = auth.uid()));
 
 drop policy if exists "Membros gerenciam tarefas" on public.tasks;
-create policy "Membros gerenciam tarefas"
-  on public.tasks for all to authenticated
-  using (project_id in (select project_id from public.project_members where user_id = auth.uid()));
+create policy "Membros criam e atualizam tarefas"
+  on public.tasks for update to authenticated
+  using (public.is_project_member(project_id));
+
+drop policy if exists "Membros inserem tarefas" on public.tasks;
+create policy "Membros inserem tarefas"
+  on public.tasks for insert to authenticated
+  with check (public.is_project_member(project_id));
+
+drop policy if exists "Dono deleta tarefas" on public.tasks;
+create policy "Dono deleta tarefas"
+  on public.tasks for delete to authenticated
+  using (
+    project_id in (
+      select id from public.projects where created_by = auth.uid()
+    )
+  );
 
 -- ============================================================
 -- PASSO 3: Trigger auto-create profile
@@ -146,3 +169,40 @@ drop policy if exists "Usuário atualiza próprio avatar" on storage.objects;
 create policy "Usuário atualiza próprio avatar"
   on storage.objects for update to authenticated
   using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ============================================================
+-- PASSO 5: Tabela de Auditoria
+-- ============================================================
+
+create table if not exists public.audit_log (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.profiles(id) on delete set null,
+  action text not null,
+  entity_type text not null,
+  entity_id uuid,
+  details jsonb,
+  created_at timestamptz default now()
+);
+
+alter table public.audit_log enable row level security;
+
+drop policy if exists "Dono vê auditoria" on public.audit_log;
+create policy "Dono vê auditoria"
+  on public.audit_log for select to authenticated using (true);
+
+drop policy if exists "Sistema insere auditoria" on public.audit_log;
+create policy "Sistema insere auditoria"
+  on public.audit_log for insert to authenticated
+  with check (user_id = auth.uid());
+
+-- ============================================================
+-- PASSO 6: Função auxiliar para verificar membership (sem recursão RLS)
+-- ============================================================
+
+create or replace function public.is_project_member(p_project_id uuid)
+returns boolean as $$
+  select exists(
+    select 1 from public.project_members
+    where project_id = p_project_id and user_id = auth.uid()
+  );
+$$ language sql security definer stable;

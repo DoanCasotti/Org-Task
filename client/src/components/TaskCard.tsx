@@ -16,6 +16,7 @@ interface TaskCardProps {
   onEdit: () => void;
   onDelete: () => void;
   onStatusChange: (status: TaskStatus) => void;
+  canDelete?: boolean;
 }
 
 const priorityConfig: Record<
@@ -36,6 +37,7 @@ export function TaskCard({
   onEdit,
   onDelete,
   onStatusChange,
+  canDelete = true,
 }: TaskCardProps) {
   const priority = priorityConfig[task.priority];
   const isOverdue =
@@ -90,10 +92,12 @@ export function TaskCard({
               Concluído
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onDelete} className="text-red-600">
-              <Trash2 className="w-4 h-4 mr-2" />
-              Deletar
-            </DropdownMenuItem>
+            {canDelete && (
+              <DropdownMenuItem onClick={onDelete} className="text-red-600">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Deletar
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
