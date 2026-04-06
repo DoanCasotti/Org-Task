@@ -8,6 +8,7 @@ import {
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { Profile } from "@shared/types";
+import { toast } from "sonner";
 
 interface AuthContextType {
   user: User | null;
@@ -43,11 +44,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
-      else {
+      if (session?.user) {
+        fetchProfile(session.user.id);
+        if (event === "SIGNED_IN") {
+          const isEmailConfirm = window.location.hash.includes("type=signup") ||
+            window.location.hash.includes("type=email");
+          if (isEmailConfirm) {
+            toast.success("Bem-vindo ao Task Manager! 🎉 Sua conta foi confirmada.");
+            window.history.replaceState(null, "", window.location.pathname);
+          }
+        }
+      } else {
         setProfile(null);
         setLoading(false);
       }
@@ -67,10 +77,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signUp(email: string, password: string, username: string) {
+    const redirectTo = `${window.location.origin}`;
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { username } },
+      options: {
+        data: { username },
+        emailRedirectTo: redirectTo,
+      },
     });
     return { error: error as Error | null };
   }
