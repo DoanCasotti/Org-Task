@@ -81,11 +81,11 @@ export function KanbanBoard({
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 h-full overflow-x-auto pb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-full pb-4">
         {columns.map(col => {
           const colTasks = getColumnTasks(col.id);
           return (
-            <div key={col.id} className="flex-1 min-w-[280px] flex flex-col">
+            <div key={col.id} className="flex flex-col min-h-0">
               <div
                 className={`flex items-center gap-2 mb-3 pb-2 border-b-2 ${col.color}`}
               >
