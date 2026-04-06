@@ -1,12 +1,10 @@
-# Projeto Integrador III-B
+# Task Manager
 
-# Task Manager — Gerenciamento de Projetos e Tarefas
+**Projeto Integrador III-B** — PUC Goiás, Análise e Desenvolvimento de Sistemas
 
-> Sistema web de gerenciamento de projetos e tarefas no estilo Kanban, inspirado no Jira. Permite que times criem projetos colaborativos, gerenciem tarefas com drag & drop, visualizem um calendário por data de entrega e filtrem tarefas por texto e prioridade.
+**Alunos** → Igor Leandro Catúlio dos Anjos e Livia Moreira Rocha
 
-**Instituição** → PUC Goiás — Projeto Integrador III-B
-
-**Alunos** → Livia Moreira Rocha e Igor Leandro Catúlio dos Anjos
+**Professor** → Thalles
 
 **Deploy** → [gerenciamentode-projetos.vercel.app](https://gerenciamentode-projetos-gsa5qtm4o-liviamors-projects.vercel.app)
 
