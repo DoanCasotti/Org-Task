@@ -122,7 +122,6 @@ Vercel / Express
 │       │   ├── useTasks.ts         CRUD + reorder de tarefas + auditoria
 │       │   ├── useProjectMembers.ts CRUD de membros
 │       │   ├── useMobile.tsx       detecta viewport mobile
-│       │   ├── useLocalStorage.ts  persistência local
 │       │   ├── useComposition.ts   hook auxiliar
 │       │   └── usePersistFn.ts     hook auxiliar
 │       └── lib/
