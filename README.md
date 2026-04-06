@@ -6,7 +6,7 @@
 
 **Professor** → Thalles
 
-**Deploy** → [gerenciamentode-projetos.vercel.app](https://gerenciamentode-projetos-gsa5qtm4o-liviamors-projects.vercel.app)
+**Deploy** → [gerenciamentode-projetos.vercel.app](https://gerenciamentode-projetos.vercel.app)
 
 **Repositório** → [github.com/LiviaMor/GerenciamentodeProjetos](https://github.com/LiviaMor/GerenciamentodeProjetos)
 
