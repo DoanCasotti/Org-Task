@@ -12,6 +12,21 @@
 
 ---
 
+## Qual problema ele resolve?
+
+Equipes pequenas e médias frequentemente perdem o controle de tarefas quando usam planilhas, anotações soltas ou conversas em grupo. Falta visibilidade sobre o que está sendo feito, por quem e com qual prazo. O Task Manager resolve isso oferecendo um espaço centralizado, colaborativo e visual para organizar o trabalho.
+
+## Por que usar o Task Manager?
+
+1. **Colaboração em tempo real** — Múltiplos usuários acessam o mesmo projeto, cada um com seu login, vendo tarefas e membros sincronizados via Supabase
+2. **Organização visual com Kanban** — Drag & drop entre colunas (A Fazer, Em Progresso, Concluído) dá visibilidade imediata do status de cada tarefa e do fluxo de trabalho
+3. **Controle de prazos com calendário** — Visualização mensal das tarefas por data de entrega, facilitando o planejamento e evitando atrasos
+4. **Segurança por design** — Row Level Security no banco garante que cada usuário só acessa dados dos projetos onde é membro, com controle de permissões (dono, admin, membro)
+5. **Acessível de qualquer lugar** — Aplicação web responsiva (desktop, tablet e mobile) hospedada na Vercel, sem necessidade de instalação
+6. **Rastreabilidade** — Tabela de auditoria registra toda criação, edição e exclusão de tarefas com timestamp e detalhes, permitindo acompanhar quem fez o quê
+
+---
+
 ## Stack Tecnológica
 
 ### Frontend
