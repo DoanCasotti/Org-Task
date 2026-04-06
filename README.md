@@ -144,6 +144,74 @@ Vercel / Express
 
 ## Banco de Dados
 
+Todos os dados são armazenados no Supabase (PostgreSQL). Cada registro possui um ID único do tipo UUID v4, gerado automaticamente pelo banco.
+
+### `profiles` — Perfil do usuário
+
+Criado automaticamente no cadastro via trigger.
+
+| Coluna | Tipo | Descrição |
+| --- | --- | --- |
+| `id` | uuid PK | Referência ao `auth.users` |
+| `username` | text UNIQUE | Nome de usuário |
+| `avatar_url` | text | URL da foto de perfil |
+| `created_at` | timestamptz | Data de criação |
+
+### `projects` — Projetos
+
+| Coluna | Tipo | Descrição |
+| --- | --- | --- |
+| `id` | uuid PK | ID único do projeto |
+| `name` | text NOT NULL | Nome do projeto |
+| `description` | text | Descrição |
+| `color` | text | Cor do projeto (hex) |
+| `created_by` | uuid FK → profiles | Dono do projeto |
+| `created_at` | timestamptz | Data de criação |
+| `updated_at` | timestamptz | Última atualização |
+
+### `project_members` — Relação N:N entre usuários e projetos
+
+| Coluna | Tipo | Descrição |
+| --- | --- | --- |
+| `id` | uuid PK | ID único |
+| `project_id` | uuid FK → projects | Projeto |
+| `user_id` | uuid FK → profiles | Usuário |
+| `role` | text | owner / admin / member |
+| `joined_at` | timestamptz | Data de entrada |
+
+Constraint: `UNIQUE (project_id, user_id)`
+
+### `tasks` — Tarefas
+
+| Coluna | Tipo | Descrição |
+| --- | --- | --- |
+| `id` | uuid PK | ID único da tarefa |
+| `project_id` | uuid FK → projects | Projeto vinculado |
+| `title` | text NOT NULL | Título |
+| `description` | text | Descrição |
+| `status` | text | todo / in_progress / done |
+| `priority` | text | low / medium / high |
+| `due_date` | date | Data de vencimento |
+| `assigned_to` | uuid FK → profiles | Responsável |
+| `order` | integer | Posição no Kanban |
+| `created_by` | uuid FK → profiles | Quem criou |
+| `created_at` | timestamptz | Data de criação |
+| `updated_at` | timestamptz | Última atualização |
+
+### `audit_log` — Auditoria de ações
+
+| Coluna | Tipo | Descrição |
+| --- | --- | --- |
+| `id` | uuid PK | ID único |
+| `user_id` | uuid FK → profiles | Quem executou |
+| `action` | text | create / update / delete |
+| `entity_type` | text | task / project |
+| `entity_id` | uuid | ID da entidade afetada |
+| `details` | jsonb | Detalhes da ação |
+| `created_at` | timestamptz | Timestamp da ação |
+
+### `storage.buckets: avatars` — Bucket público para fotos de perfil
+
 ### Diagrama de Relacionamento
 
 ```
@@ -152,52 +220,16 @@ auth.users   (gerenciado pelo Supabase Auth)
 ▼  trigger: on_auth_user_created → handle_new_user()
 
 profiles
-├── id           uuid PK → auth.users
-├── username     text UNIQUE
-├── avatar_url   text
-└── created_at   timestamptz
 │
 ├──► projects
-│       ├── id           uuid PK
-│       ├── name         text NOT NULL
-│       ├── description  text
-│       ├── color        text  default '#07477c'
-│       ├── created_by   uuid → profiles
-│       ├── created_at   timestamptz
-│       └── updated_at   timestamptz
-│            │
-│            ├──► project_members
-│            │       ├── id          uuid PK
-│            │       ├── project_id  uuid → projects
-│            │       ├── user_id     uuid → profiles
-│            │       ├── role        text  (owner|admin|member)
-│            │       └── joined_at   timestamptz
-│            │       UNIQUE (project_id, user_id)
-│            │
-│            └──► tasks
-│                    ├── id           uuid PK
-│                    ├── project_id   uuid → projects
-│                    ├── title        text NOT NULL
-│                    ├── description  text
-│                    ├── status       text  (todo|in_progress|done)
-│                    ├── priority     text  (low|medium|high)
-│                    ├── due_date     date
-│                    ├── assigned_to  uuid → profiles (nullable)
-│                    ├── order        integer  default 0
-│                    ├── created_by   uuid → profiles
-│                    ├── created_at   timestamptz
-│                    └── updated_at   timestamptz
+│       │
+│       ├──► project_members  (N:N entre profiles e projects)
+│       │
+│       └──► tasks
 │
 ├──► audit_log
-│       ├── id           uuid PK
-│       ├── user_id      uuid → profiles
-│       ├── action       text  (create|update|delete)
-│       ├── entity_type  text  (task|project)
-│       ├── entity_id    uuid
-│       ├── details      jsonb
-│       └── created_at   timestamptz
 │
-└──► storage.buckets: 'avatars'  (público)
+└──► storage.buckets: 'avatars'
 ```
 
 ### Políticas RLS (Row Level Security)
