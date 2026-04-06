@@ -1,4 +1,4 @@
-# Design Brainstorm - Task List Manager
+# Design Brainstorm - Task Manager
 
 ## Conceito do Projeto
 
