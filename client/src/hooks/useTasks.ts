@@ -43,6 +43,8 @@ export function useTasks(projectId?: string | null) {
       title: string;
       priority?: TaskPriority;
       description?: string;
+      start_date?: string;
+      end_date?: string;
       due_date?: string;
       assigned_to?: string;
     }) => {

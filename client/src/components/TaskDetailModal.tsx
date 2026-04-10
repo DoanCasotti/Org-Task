@@ -138,7 +138,27 @@ export function TaskDetailModal({ task, open, onOpenChange, members, projects }:
                 </div>
 
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Vencimento</p>
+                  <p className="text-xs text-gray-500 mb-1">Início</p>
+                  <input
+                    type="date"
+                    defaultValue={current.start_date ?? ''}
+                    onBlur={e => updateTask.mutate({ start_date: e.target.value || null })}
+                    className="h-8 text-sm border border-gray-200 rounded px-2 w-full"
+                  />
+                </div>
+
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Término</p>
+                  <input
+                    type="date"
+                    defaultValue={current.end_date ?? ''}
+                    onBlur={e => updateTask.mutate({ end_date: e.target.value || null })}
+                    className="h-8 text-sm border border-gray-200 rounded px-2 w-full"
+                  />
+                </div>
+
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Entrega</p>
                   <input
                     type="date"
                     defaultValue={current.due_date ?? ''}

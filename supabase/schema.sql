@@ -222,6 +222,12 @@ ALTER TABLE public.profiles
 ALTER TABLE public.tasks
   ADD COLUMN IF NOT EXISTS parent_id uuid references public.tasks(id) on delete cascade;
 
+-- Datas de início e término
+ALTER TABLE public.tasks
+  ADD COLUMN IF NOT EXISTS start_date date;
+ALTER TABLE public.tasks
+  ADD COLUMN IF NOT EXISTS end_date date;
+
 -- Tabela de comentários
 create table if not exists public.task_comments (
   id uuid default gen_random_uuid() primary key,

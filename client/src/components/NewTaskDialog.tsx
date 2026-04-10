@@ -30,6 +30,8 @@ interface NewTaskDialogProps {
     title: string;
     priority: TaskPriority;
     description?: string;
+    start_date?: string;
+    end_date?: string;
     due_date?: string;
     assigned_to?: string;
   }) => void;
@@ -43,10 +45,13 @@ export function NewTaskDialog({
   onOpenChange,
   onSubmit,
 }: NewTaskDialogProps) {
+  const today = new Date().toISOString().split("T")[0];
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("medium");
   const [selectedProjectId, setSelectedProjectId] = useState(projectId || "");
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
 
@@ -56,6 +61,8 @@ export function NewTaskDialog({
       setTitle("");
       setDescription("");
       setPriority("medium");
+      setStartDate(today);
+      setEndDate("");
       setDueDate("");
       setAssignedTo("");
     }
@@ -68,6 +75,8 @@ export function NewTaskDialog({
         title: title.trim(),
         priority,
         description: description.trim() || undefined,
+        start_date: startDate || undefined,
+        end_date: endDate || undefined,
         due_date: dueDate || undefined,
         assigned_to: assignedTo || undefined,
       });
@@ -147,7 +156,25 @@ export function NewTaskDialog({
               </Select>
             </div>
             <div>
-              <Label>Data de Vencimento</Label>
+              <Label>Data de Início</Label>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={e => setStartDate(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label>Data de Término</Label>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={e => setEndDate(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label>Data de Entrega</Label>
               <Input
                 type="date"
                 value={dueDate}
