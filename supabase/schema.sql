@@ -73,37 +73,30 @@ create policy "Usuário insere próprio perfil"
 -- Projects
 drop policy if exists "Criador gerencia projeto" on public.projects;
 create policy "Criador gerencia projeto"
-  on public.projects for all to authenticated using (created_by = auth.uid());
+  on public.projects for all to authenticated
+  using (created_by = auth.uid())
+  with check (created_by = auth.uid());
 
 drop policy if exists "Membros veem projetos" on public.projects;
 create policy "Membros veem projetos"
   on public.projects for select to authenticated
-  using (id in (select project_id from public.project_members where user_id = auth.uid()));
+  using (
+    created_by = auth.uid()
+    or exists (
+      select 1 from public.project_members
+      where project_id = id and user_id = auth.uid()
+    )
+  );
 
 -- Project Members
 drop policy if exists "Membros veem membros do projeto" on public.project_members;
-create policy "Membros veem membros do projeto"
-  on public.project_members for select to authenticated
-  using (project_id in (select project_id from public.project_members pm where pm.user_id = auth.uid()));
-
 drop policy if exists "Owner gerencia membros" on public.project_members;
-create policy "Owner gerencia membros"
-  on public.project_members for all to authenticated
-  using (project_id in (select id from public.projects where created_by = auth.uid()));
-
 drop policy if exists "Usuário se adiciona como membro" on public.project_members;
-create policy "Usuário se adiciona como membro"
-  on public.project_members for insert to authenticated
-  with check (user_id = auth.uid());
-
 drop policy if exists "Owner insere membros" on public.project_members;
-create policy "Owner insere membros"
-  on public.project_members for insert to authenticated
-  with check (
-    project_id in (
-      select id from public.projects where created_by = auth.uid()
-    )
-  );
+create policy "Membros gerenciam project_members"
+  on public.project_members for all to authenticated
+  using (true)
+  with check (true);
 
 -- Função auxiliar (necessária antes das policies de tasks)
 create or replace function public.is_project_member(p_project_id uuid)
