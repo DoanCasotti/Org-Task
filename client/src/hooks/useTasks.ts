@@ -119,10 +119,15 @@ export function useTasks(projectId?: string | null) {
     mutationFn: async (
       tasks: { id: string; status: TaskStatus; order: number }[]
     ) => {
-      const { error } = await supabase
-        .from('tasks')
-        .upsert(tasks.map(t => ({ id: t.id, status: t.status, order: t.order })));
-      if (error) throw error;
+      const updates = tasks.map(t =>
+        supabase
+          .from("tasks")
+          .update({ status: t.status, order: t.order, updated_at: new Date().toISOString() })
+          .eq("id", t.id)
+      );
+      const results = await Promise.all(updates);
+      const failed = results.find(r => r.error);
+      if (failed?.error) throw failed.error;
     },
     onSuccess: async (_, variables) => {
       const statusChanges = variables.filter((t) => {
