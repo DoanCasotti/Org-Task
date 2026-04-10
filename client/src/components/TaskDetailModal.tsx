@@ -141,6 +141,7 @@ export function TaskDetailModal({ task, open, onOpenChange, members, projects }:
                   <p className="text-xs text-gray-500 mb-1">Início</p>
                   <input
                     type="date"
+                    key={`start-${current.id}`}
                     defaultValue={current.start_date ?? ''}
                     onBlur={e => updateTask.mutate({ start_date: e.target.value || null })}
                     className="h-8 text-sm border border-gray-200 rounded px-2 w-full"
@@ -151,6 +152,7 @@ export function TaskDetailModal({ task, open, onOpenChange, members, projects }:
                   <p className="text-xs text-gray-500 mb-1">Término</p>
                   <input
                     type="date"
+                    key={`end-${current.id}`}
                     defaultValue={current.end_date ?? ''}
                     onBlur={e => updateTask.mutate({ end_date: e.target.value || null })}
                     className="h-8 text-sm border border-gray-200 rounded px-2 w-full"
@@ -161,6 +163,7 @@ export function TaskDetailModal({ task, open, onOpenChange, members, projects }:
                   <p className="text-xs text-gray-500 mb-1">Entrega</p>
                   <input
                     type="date"
+                    key={`due-${current.id}`}
                     defaultValue={current.due_date ?? ''}
                     onBlur={e => updateTask.mutate({ due_date: e.target.value || null })}
                     className="h-8 text-sm border border-gray-200 rounded px-2 w-full"
