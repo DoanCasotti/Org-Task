@@ -114,9 +114,15 @@ create policy "Membros veem tarefas do projeto"
   using (project_id in (select project_id from public.project_members where user_id = auth.uid()));
 
 drop policy if exists "Membros gerenciam tarefas" on public.tasks;
-create policy "Membros criam e atualizam tarefas"
+drop policy if exists "Membros criam e atualizam tarefas" on public.tasks;
+create policy "Membros atualizam tarefas"
   on public.tasks for update to authenticated
-  using (public.is_project_member(project_id));
+  using (project_id in (
+    select project_id from public.project_members where user_id = auth.uid()
+  ))
+  with check (project_id in (
+    select project_id from public.project_members where user_id = auth.uid()
+  ));
 
 drop policy if exists "Membros inserem tarefas" on public.tasks;
 create policy "Membros inserem tarefas"
