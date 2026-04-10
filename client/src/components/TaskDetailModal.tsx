@@ -55,7 +55,7 @@ export function TaskDetailModal({ task, open, onOpenChange, members, projects }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] p-0 flex flex-col overflow-hidden">
+      <DialogContent className="!max-w-3xl w-[95vw] max-h-[90vh] p-0 flex flex-col overflow-hidden">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1 px-6 pt-4 pb-3 text-xs text-gray-500 border-b border-gray-100 shrink-0">
           <span className="font-medium text-gray-700">{project?.name ?? 'Projeto'}</span>
