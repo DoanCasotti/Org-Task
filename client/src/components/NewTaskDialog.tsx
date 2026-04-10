@@ -191,24 +191,22 @@ export function NewTaskDialog({
             </div>
           </div>
 
-          {members.length > 0 && (
-            <div>
-              <Label>Atribuir a</Label>
-              <Select value={assignedTo || "none"} onValueChange={v => setAssignedTo(v === "none" ? "" : v)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Ninguém" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Ninguém</SelectItem>
-                  {members.map(m => (
-                    <SelectItem key={m.id} value={m.id}>
-                      {m.username || m.id.slice(0, 8)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          <div>
+            <Label>Atribuir a</Label>
+            <Select value={assignedTo || "none"} onValueChange={v => setAssignedTo(v === "none" ? "" : v)}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Ninguém" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Ninguém</SelectItem>
+                {members.map(m => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.username || m.id.slice(0, 8)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="flex gap-2 justify-end mt-6">
