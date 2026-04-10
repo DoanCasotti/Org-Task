@@ -187,8 +187,10 @@ create table if not exists public.audit_log (
 alter table public.audit_log enable row level security;
 
 drop policy if exists "Dono vê auditoria" on public.audit_log;
-create policy "Dono vê auditoria"
-  on public.audit_log for select to authenticated using (true);
+drop policy if exists "Usuário vê própria auditoria" on public.audit_log;
+create policy "Usuário vê própria auditoria"
+  on public.audit_log for select to authenticated
+  using (user_id = auth.uid());
 
 drop policy if exists "Sistema insere auditoria" on public.audit_log;
 create policy "Sistema insere auditoria"
@@ -206,3 +208,55 @@ returns boolean as $$
     where project_id = p_project_id and user_id = auth.uid()
   );
 $$ language sql security definer stable;
+
+-- Constraint de formato de username
+ALTER TABLE public.profiles
+  DROP CONSTRAINT IF EXISTS username_format;
+ALTER TABLE public.profiles
+  ADD CONSTRAINT username_format
+  CHECK (username ~ '^[a-zA-Z0-9_-]{3,30}$');
+
+-- ============================================================
+-- PASSO 7: Subtarefas e Comentários
+-- ============================================================
+
+-- Coluna parent_id para hierarquia de subtarefas
+ALTER TABLE public.tasks
+  ADD COLUMN IF NOT EXISTS parent_id uuid references public.tasks(id) on delete cascade;
+
+-- Tabela de comentários
+create table if not exists public.task_comments (
+  id uuid default gen_random_uuid() primary key,
+  task_id uuid references public.tasks(id) on delete cascade not null,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  content text not null,
+  created_at timestamptz default now()
+);
+
+alter table public.task_comments enable row level security;
+
+drop policy if exists "Membros veem comentários" on public.task_comments;
+create policy "Membros veem comentários"
+  on public.task_comments for select to authenticated
+  using (
+    task_id in (
+      select t.id from public.tasks t
+      where public.is_project_member(t.project_id)
+    )
+  );
+
+drop policy if exists "Membros inserem comentários" on public.task_comments;
+create policy "Membros inserem comentários"
+  on public.task_comments for insert to authenticated
+  with check (
+    user_id = auth.uid() and
+    task_id in (
+      select t.id from public.tasks t
+      where public.is_project_member(t.project_id)
+    )
+  );
+
+drop policy if exists "Autor deleta comentário" on public.task_comments;
+create policy "Autor deleta comentário"
+  on public.task_comments for delete to authenticated
+  using (user_id = auth.uid());

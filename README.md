@@ -1,492 +1,147 @@
 # Task Manager
 
-**Projeto Integrador III-B** — PUC Goiás, Análise e Desenvolvimento de Sistemas
-
-**Alunos** → Igor Leandro Catúlio dos Anjos e Livia Moreira Rocha
-
-**Professor** → Thalles
-
-**Deploy** → [gerenciamentode-projetos.vercel.app](https://gerenciamentode-projetos.vercel.app)
+Aplicação web de gerenciamento de projetos e tarefas com Kanban, calendário, subtarefas, colaboração em tempo real e auditoria de ações.
 
 **Repositório** → [github.com/LiviaMor/GerenciamentodeProjetos](https://github.com/LiviaMor/GerenciamentodeProjetos)
 
 ---
 
-## Qual problema ele resolve?
+## Stack
 
-Equipes pequenas e médias frequentemente perdem o controle de tarefas quando usam planilhas, anotações soltas ou conversas em grupo. Falta visibilidade sobre o que está sendo feito, por quem e com qual prazo. O Task Manager resolve isso oferecendo um espaço centralizado, colaborativo e visual para organizar o trabalho.
-
-## Por que usar o Task Manager?
-
-1. **Colaboração em tempo real** — Múltiplos usuários acessam o mesmo projeto, cada um com seu login, vendo tarefas e membros sincronizados via Supabase
-2. **Organização visual com Kanban** — Drag & drop entre colunas (A Fazer, Em Progresso, Concluído) dá visibilidade imediata do status de cada tarefa e do fluxo de trabalho
-3. **Controle de prazos com calendário** — Visualização mensal das tarefas por data de entrega, facilitando o planejamento e evitando atrasos
-4. **Segurança por design** — Row Level Security no banco garante que cada usuário só acessa dados dos projetos onde é membro, com controle de permissões (dono, admin, membro)
-5. **Acessível de qualquer lugar** — Aplicação web responsiva (desktop, tablet e mobile) hospedada na Vercel, sem necessidade de instalação
-6. **Rastreabilidade** — Tabela de auditoria registra toda criação, edição e exclusão de tarefas com timestamp e detalhes, permitindo acompanhar quem fez o quê
-
----
-
-## Stack Tecnológica
-
-### Frontend
-
-- **React 19** + **TypeScript** + **Vite 7**
-- **Tailwind CSS 4** para estilização utilitária
-- **shadcn/ui** (primitivos Radix UI) para componentes de interface
-- **wouter** para roteamento client-side (SPA)
-- **framer-motion** para animações
-- **lucide-react** para ícones
-
-### Estado e Dados
-
-- **TanStack Query v5** (React Query) → cache, sincronização e mutações
-- **Context API** → autenticação (`AuthContext`) e tema (`ThemeContext`)
-- **react-hook-form** + **zod** → validação de formulários
-
-### Backend (BaaS)
-
-- **Supabase** → PostgreSQL + Auth + Storage
-- Sem API REST própria — o cliente React se comunica diretamente com o Supabase via SDK `@supabase/supabase-js`
-
-### Drag & Drop
-
-- **@hello-pangea/dnd** → DragDropContext / Droppable / Draggable
-
-### Utilitários
-
-- **date-fns** (locale pt-BR) → manipulação e formatação de datas
-- **sonner** → notificações toast
-- **next-themes** → suporte a tema claro/escuro
-
-### Infraestrutura
-
-- **Vercel** → deploy automático (produção)
-- **GitHub Actions** → CI (type check + build em cada push)
-- **Express** → servidor estático para servir o build fora da Vercel
-- **pnpm** → gerenciador de pacotes
-- **esbuild** → bundle do servidor
+**Frontend:** React 19 + TypeScript + Vite 7 + Tailwind CSS 4 + shadcn/ui  
+**Estado:** TanStack Query v5 + Context API  
+**Backend:** Supabase (PostgreSQL + Auth + Storage) — sem API própria  
+**Drag & Drop:** @hello-pangea/dnd  
+**Editor Markdown:** @uiw/react-md-editor  
+**Servidor:** Express + helmet + express-rate-limit  
+**Testes:** Vitest + Testing Library  
+**CI:** GitHub Actions (typecheck → test → build)  
+**Deploy:** Docker (dev e produção) — compatível com AWS ECS
 
 ---
 
-## Arquitetura Geral
+## Funcionalidades
 
-```
-Browser (React SPA)
-│
-├──► Supabase Auth     login, cadastro, sessão JWT
-├──► Supabase DB       PostgreSQL via PostgREST (RLS ativo)
-└──► Supabase Storage  avatares dos usuários (bucket: avatars)
-
-Vercel / Express
-└──► Serve dist/public  index.html + assets estáticos
-```
-
-> Toda a lógica de acesso a dados vive nos hooks React (useProjects, useTasks, useProjectMembers). Não há camada de API server-side própria.
-
----
-
-## Estrutura de Diretórios
-
-```
-/
-├── client/
-│   ├── index.html
-│   └── src/
-│       ├── main.tsx                entry point React
-│       ├── App.tsx                 providers globais + roteamento
-│       ├── index.css               estilos globais (Tailwind)
-│       ├── const.ts                constantes do client
-│       ├── pages/
-│       │   ├── Auth.tsx            página de login/cadastro
-│       │   ├── Home.tsx            página principal (estado global)
-│       │   └── NotFound.tsx        página 404
-│       ├── components/
-│       │   ├── Sidebar.tsx         lista de projetos, troca de view, logout
-│       │   ├── MainContent.tsx     header, filtros, busca, board/calendar
-│       │   ├── KanbanBoard.tsx     board com 3 colunas e drag & drop
-│       │   ├── TaskCard.tsx        card individual de tarefa
-│       │   ├── CalendarView.tsx    calendário mensal por due_date
-│       │   ├── NewProjectDialog.tsx   modal criar projeto
-│       │   ├── NewTaskDialog.tsx      modal criar tarefa
-│       │   ├── EditTaskDialog.tsx     modal editar tarefa
-│       │   ├── ManageMembersDialog.tsx modal gerenciar membros
-│       │   ├── ErrorBoundary.tsx   error boundary global
-│       │   └── ui/                 componentes shadcn/ui (gerados)
-│       ├── contexts/
-│       │   ├── AuthContext.tsx     user, profile, session, signIn/Up/Out
-│       │   ├── ThemeContext.tsx    tema claro/escuro
-│       │   └── AppContext.tsx      contexto legado (não utilizado)
-│       ├── hooks/
-│       │   ├── useProjects.ts      CRUD de projetos
-│       │   ├── useTasks.ts         CRUD + reorder de tarefas + auditoria
-│       │   ├── useProjectMembers.ts CRUD de membros
-│       │   ├── useMobile.tsx       detecta viewport mobile
-│       │   ├── useComposition.ts   hook auxiliar
-│       │   └── usePersistFn.ts     hook auxiliar
-│       └── lib/
-│           └── supabase.ts         instância singleton do cliente Supabase
-├── server/
-│   └── index.ts                    Express servindo arquivos estáticos
-├── shared/
-│   ├── types.ts                    tipos TypeScript compartilhados
-│   └── const.ts                    constantes compartilhadas
-├── supabase/
-│   └── schema.sql                  SQL completo (tabelas, RLS, triggers, auditoria)
-├── package.json
-├── vite.config.ts
-├── tsconfig.json
-├── components.json                 config shadcn/ui
-└── vercel.json                     config de deploy Vercel
-```
+- Autenticação com email/senha, avatar e recuperação de senha
+- Projetos com cor customizável e controle de membros (owner / admin / member)
+- Kanban com drag & drop e reordenação persistida
+- Calendário mensal por data de vencimento
+- **Task Detail Modal** (estilo ClickUp):
+  - Descrição em Markdown com editor split
+  - Subtarefas recursivas ilimitadas
+  - Painel de atividade com logs automáticos + comentários com `@menção`
+- Busca por texto e filtro por prioridade
+- Auditoria completa de ações (create / update / delete)
+- Row Level Security no banco — cada usuário acessa apenas seus projetos
 
 ---
 
 ## Banco de Dados
 
-Todos os dados são armazenados no Supabase (PostgreSQL). Cada registro possui um ID único do tipo UUID v4, gerado automaticamente pelo banco.
+Execute `supabase/schema.sql` no SQL Editor do Supabase Dashboard antes de rodar o projeto.
 
-### `profiles` — Perfil do usuário
+### Tabelas
 
-Criado automaticamente no cadastro via trigger.
-
-| Coluna | Tipo | Descrição |
-| --- | --- | --- |
-| `id` | uuid PK | Referência ao `auth.users` |
-| `username` | text UNIQUE | Nome de usuário |
-| `avatar_url` | text | URL da foto de perfil |
-| `created_at` | timestamptz | Data de criação |
-
-### `projects` — Projetos
-
-| Coluna | Tipo | Descrição |
-| --- | --- | --- |
-| `id` | uuid PK | ID único do projeto |
-| `name` | text NOT NULL | Nome do projeto |
-| `description` | text | Descrição |
-| `color` | text | Cor do projeto (hex) |
-| `created_by` | uuid FK → profiles | Dono do projeto |
-| `created_at` | timestamptz | Data de criação |
-| `updated_at` | timestamptz | Última atualização |
-
-### `project_members` — Relação N:N entre usuários e projetos
-
-| Coluna | Tipo | Descrição |
-| --- | --- | --- |
-| `id` | uuid PK | ID único |
-| `project_id` | uuid FK → projects | Projeto |
-| `user_id` | uuid FK → profiles | Usuário |
-| `role` | text | owner / admin / member |
-| `joined_at` | timestamptz | Data de entrada |
-
-Constraint: `UNIQUE (project_id, user_id)`
-
-### `tasks` — Tarefas
-
-| Coluna | Tipo | Descrição |
-| --- | --- | --- |
-| `id` | uuid PK | ID único da tarefa |
-| `project_id` | uuid FK → projects | Projeto vinculado |
-| `title` | text NOT NULL | Título |
-| `description` | text | Descrição |
-| `status` | text | todo / in_progress / done |
-| `priority` | text | low / medium / high |
-| `due_date` | date | Data de vencimento |
-| `assigned_to` | uuid FK → profiles | Responsável |
-| `order` | integer | Posição no Kanban |
-| `created_by` | uuid FK → profiles | Quem criou |
-| `created_at` | timestamptz | Data de criação |
-| `updated_at` | timestamptz | Última atualização |
-
-### `audit_log` — Auditoria de ações
-
-| Coluna | Tipo | Descrição |
-| --- | --- | --- |
-| `id` | uuid PK | ID único |
-| `user_id` | uuid FK → profiles | Quem executou |
-| `action` | text | create / update / delete |
-| `entity_type` | text | task / project |
-| `entity_id` | uuid | ID da entidade afetada |
-| `details` | jsonb | Detalhes da ação |
-| `created_at` | timestamptz | Timestamp da ação |
-
-### `storage.buckets: avatars` — Bucket público para fotos de perfil
-
-### Diagrama de Relacionamento
-
-```
-auth.users   (gerenciado pelo Supabase Auth)
-│
-▼  trigger: on_auth_user_created → handle_new_user()
-
-profiles
-│
-├──► projects
-│       │
-│       ├──► project_members  (N:N entre profiles e projects)
-│       │
-│       └──► tasks
-│
-├──► audit_log
-│
-└──► storage.buckets: 'avatars'
-```
-
-### Políticas RLS (Row Level Security)
-
-| Tabela | Política |
-| --- | --- |
-| `profiles` | Qualquer autenticado lê; usuário edita/insere apenas o próprio |
-| `projects` | Criador tem acesso total; membros podem visualizar |
-| `project_members` | Membros veem membros do mesmo projeto; owner gerencia; owner pode inserir qualquer membro |
-| `tasks` | Membros do projeto veem, criam e atualizam; apenas o dono do projeto pode deletar |
-| `audit_log` | Qualquer autenticado lê; usuário insere apenas registros próprios |
-| `storage (avatars)` | Leitura pública; upload/update somente do próprio avatar |
-
-### Função Auxiliar
-
-- **`is_project_member(p_project_id)`** → função `security definer` que verifica membership sem recursão de RLS
-
-### Trigger Automático
-
-- **Nome** → `on_auth_user_created`
-- **Evento** → `AFTER INSERT` em `auth.users`
-- **Ação** → cria linha em `profiles` com o `username` vindo de `raw_user_meta_data`
+| Tabela | Descrição |
+|---|---|
+| `profiles` | Perfil do usuário (criado via trigger no cadastro) |
+| `projects` | Projetos |
+| `project_members` | Relação N:N usuários ↔ projetos com role |
+| `tasks` | Tarefas com `parent_id` para subtarefas recursivas |
+| `task_comments` | Comentários por tarefa |
+| `audit_log` | Log de todas as ações |
 
 ---
 
-## Fluxo de Dados Principal
+## Configuração
 
-1. **`App.tsx`** monta os providers na ordem:
-   `ErrorBoundary` → `QueryClientProvider` → `ThemeProvider` → `AuthProvider` → `TooltipProvider`
+### Variáveis de ambiente
 
-2. **`AuthContext`** verifica sessão via `supabase.auth.getSession()` na inicialização e escuta mudanças com `onAuthStateChange`
-   - Sem sessão → renderiza `<Auth />`
-   - Com sessão → busca perfil em `profiles` e renderiza a aplicação
-
-3. **`Home.tsx`** é o componente raiz da app autenticada
-   - Mantém estado de `selectedProjectId` e `view` (`kanban` | `calendar`)
-   - Instancia `useProjects`, `useTasks(selectedProjectId)` e `useProjectMembers(selectedProjectId)`
-   - Calcula `taskCounts` (total e concluídas por projeto) via `useMemo`
-   - Determina `isProjectOwner` comparando `created_by` com o usuário logado
-
-4. **Hooks** usam TanStack Query (`useQuery` + `useMutation`)
-   - Buscam e mutam dados diretamente no Supabase
-   - Invalidam as queries relevantes após cada mutação bem-sucedida
-   - Registram ações na tabela `audit_log` (criar, editar, deletar tarefas)
-
-5. **`Sidebar`** → lista de projetos com barra de progresso, botão "Novo Projeto", toggle de view (Kanban / Calendário), avatar e logout do usuário
-
-6. **`MainContent`** → header do projeto, busca por texto, filtro por prioridade, botão "Nova Tarefa", botão "Membros" (visível quando um projeto está selecionado); decide entre `<KanbanBoard>` ou `<CalendarView>`
-
-7. **`KanbanBoard`** → usa `DragDropContext / Droppable / Draggable`; no `onDragEnd` recalcula `status` e `order` de cada tarefa afetada e dispara N updates paralelos no Supabase via `Promise.all`; botão de deletar tarefa visível apenas para o dono do projeto
-
-8. **`CalendarView`** → usa `date-fns` para construir a grade mensal; mapeia tarefas pelo `due_date` com indicador de prioridade colorido
-
----
-
-## Componentes Principais
-
-### Sidebar (`Sidebar.tsx`)
-
-- Largura fixa de 256px (`w-64`), fundo `gray-50`
-- Em mobile: posicionada como `fixed`, aparece com transição via `translate-x`; overlay escuro fecha ao clicar fora
-- **Seções:**
-  - Header com logo + botão "Novo Projeto"
-  - Toggle Kanban / Calendário
-  - Lista de projetos com dot colorido, contador `concluídas/total • %` e botão de deletar (visível no hover)
-  - Footer com avatar, username e botão de logout
-
-### KanbanBoard (`KanbanBoard.tsx`)
-
-- 3 colunas fixas: **A Fazer** (amarelo) · **Em Progresso** (azul) · **Concluído** (verde)
-- Cada coluna é um `<Droppable>`, cada card é um `<Draggable>`
-- Ao soltar (`onDragEnd`):
-  - **Mesma coluna** → reordena e persiste os novos `order` values
-  - **Colunas diferentes** → atualiza `status` + `order` de todas as tarefas afetadas
-- Card em arraste recebe `shadow-lg rotate-2`; coluna de destino recebe `bg-blue-50`
-- Botão de deletar tarefa visível apenas para o dono do projeto (`isProjectOwner`)
-
-### AuthContext (`AuthContext.tsx`)
-
-| Propriedade / Método | Tipo | Descrição |
-| --- | --- | --- |
-| `user` | `User \| null` | Usuário Supabase Auth |
-| `profile` | `Profile \| null` | Dados da tabela `profiles` |
-| `session` | `Session \| null` | Sessão JWT ativa |
-| `loading` | `boolean` | Estado de inicialização |
-| `signUp` | `fn` | Cadastro com email + senha + username |
-| `signIn` | `fn` | Login com email + senha |
-| `signOut` | `fn` | Logout e limpeza de estado |
-| `updateProfile` | `fn` | Atualiza campos do perfil |
-| `uploadAvatar` | `fn` | Upload para `avatars/<userId>/avatar.<ext>` |
-
-### Hooks de Dados
-
-#### `useProjects`
-
-- `useQuery` → busca todos os projetos do usuário ordenados por `created_at DESC`
-- `addProject` → insere projeto + insere criador como `owner` em `project_members`
-- `deleteProject` → deleta projeto (cascade apaga membros e tarefas)
-
-#### `useTasks(projectId?)`
-
-- `useQuery` → busca tarefas com join em `profiles` (responsável), ordenadas por `order ASC`
-- `addTask` → calcula `maxOrder` na coluna `todo` e insere com `status: "todo"`; registra auditoria
-- `updateTask` → atualiza campos e seta `updated_at`; registra auditoria
-- `deleteTask` → remove tarefa por id (apenas dono do projeto via RLS); registra auditoria
-- `reorderTasks` → dispara N updates em paralelo via `Promise.all`
-
-#### `useProjectMembers(projectId?)`
-
-- `useQuery` → busca membros com join em `profiles`
-- `addMember` → insere membro por `userId` + `role`
-- `removeMember` → deleta pelo `id` da linha em `project_members`
-
----
-
-## Funcionalidades Implementadas
-
-### Autenticação
-
-- Cadastro com email, senha e username obrigatório
-- Upload opcional de avatar no cadastro (Supabase Storage)
-- Login com email e senha
-- Logout
-- Sessão persistida via JWT no localStorage (gerenciado pelo Supabase)
-- Trigger cria perfil automaticamente no cadastro
-- Proteção de rotas: app só renderiza se há sessão ativa
-
-### Projetos
-
-- Criar projeto → nome, descrição e cor customizável via color picker
-- Listar projetos → apenas projetos onde o usuário é membro (RLS)
-- Deletar projeto → apenas o criador pode deletar
-- Contador de tarefas (total e concluídas) com percentual na sidebar
-- Opção "Todos os Projetos" exibe tarefas de todos os projetos do usuário
-
-### Membros
-
-- Adicionar membro ao projeto buscando por username
-- Remover membro do projeto (exceto o dono)
-- Papéis disponíveis: `owner` / `admin` / `member`
-- Criador é adicionado automaticamente como `owner` na criação do projeto
-- Dialog de gerenciamento de membros acessível pelo botão "Membros" no header
-
-### Tarefas
-
-- Criar tarefa → título, descrição, prioridade, data de entrega, responsável
-- Editar tarefa → todos os campos via modal
-- Deletar tarefa → apenas o dono do projeto pode deletar (RLS + UI)
-- Alterar status via drag & drop entre colunas
-- Reordenar tarefas dentro da mesma coluna via drag & drop
-- Campo `order` numérico persistido no banco
-
-### Auditoria
-
-- Tabela `audit_log` registra todas as ações de criação, edição e exclusão de tarefas
-- Cada registro contém: usuário, ação, tipo de entidade, ID da entidade e detalhes em JSON
-- Dados consultáveis diretamente no Supabase Dashboard (Table Editor → audit_log)
-
-### Filtros e Busca
-
-- Busca por texto → filtra `título` e `descrição` (client-side)
-- Filtro por prioridade → `low` / `medium` / `high` / todas
-- Filtros aplicados antes de passar para o board ou calendário
-
-### Visualizações
-
-- **Kanban Board** → 3 colunas com drag & drop
-- **Calendário** → grade mensal, tarefas posicionadas pelo `due_date`, indicador de prioridade colorido
-
-### UX / Interface
-
-- Sidebar responsiva e colapsível em mobile com overlay
-- Cor primária `#07477c` (azul escuro)
-- Toasts de feedback (sonner) em todas as operações CRUD
-- Loading spinner animado na inicialização da sessão
-- Error boundary global captura erros de renderização
-
----
-
-## Configuração de Ambiente
-
-### Variáveis de Ambiente
-
-Arquivo → `.env` na raiz do projeto
+Copie `.env.example` para `.env` e preencha:
 
 ```
 VITE_SUPABASE_URL=https://<projeto>.supabase.co
 VITE_SUPABASE_ANON_KEY=<anon-key>
 ```
 
-### Instalação Local
+> As variáveis `VITE_*` são embutidas no bundle durante o build — não são lidas em runtime.
+
+---
+
+## Rodando localmente
+
+### Sem Docker
 
 ```bash
-# 1. Instalar dependências
 pnpm install
-
-# 2. Configurar banco de dados
-# Executar supabase/schema.sql no SQL Editor do Supabase Dashboard
-
-# 3. Configurar variáveis de ambiente
-# Criar .env com VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY
-
-# 4. Iniciar desenvolvimento
 pnpm dev
 ```
 
-### Scripts Disponíveis
+### Com Docker
+
+```bash
+# Desenvolvimento (hot reload)
+docker compose --profile dev up
+
+# Produção
+docker compose --profile prod up --build
+```
+
+---
+
+## Deploy na AWS (ECS)
+
+```bash
+# Build da imagem com as variáveis de ambiente
+docker build \
+  --build-arg VITE_SUPABASE_URL=https://seu-projeto.supabase.co \
+  --build-arg VITE_SUPABASE_ANON_KEY=sua-anon-key \
+  -t task-manager .
+
+# Push para o ECR
+aws ecr get-login-password --region us-east-1 | \
+  docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-east-1.amazonaws.com
+
+docker tag task-manager:latest <account-id>.dkr.ecr.us-east-1.amazonaws.com/task-manager:latest
+docker push <account-id>.dkr.ecr.us-east-1.amazonaws.com/task-manager:latest
+```
+
+**Configuração do container no ECS:**
+- Porta: `3000`
+- Variáveis de ambiente em runtime: `NODE_ENV=production`, `PORT=3000`
+
+---
+
+## Scripts
 
 | Comando | Descrição |
-| --- | --- |
-| `pnpm dev` | Servidor de desenvolvimento Vite |
-| `pnpm build` | Build client (Vite) + server (esbuild) |
-| `pnpm build:client` | Build apenas do frontend |
-| `pnpm build:server` | Build apenas do servidor Express |
-| `pnpm start` | Serve o build via Express (produção) |
-| `pnpm check` | Type check TypeScript (`tsc --noEmit`) |
-| `pnpm format` | Formata o código com Prettier |
-| `pnpm preview` | Preview do build de produção |
+|---|---|
+| `pnpm dev` | Servidor de desenvolvimento |
+| `pnpm build` | Build client + server |
+| `pnpm start` | Serve o build via Express |
+| `pnpm test` | Testes em modo watch |
+| `pnpm test:run` | Testes uma vez (CI) |
+| `pnpm typecheck` | Type check TypeScript |
+| `pnpm lint` | ESLint + type check |
+| `pnpm format` | Formata com Prettier |
 
 ---
 
-## Deploy
+## Estrutura
 
-### Vercel (Produção)
+```
+client/src/
+├── components/       # UI components
+│   └── ui/           # shadcn/ui primitives
+├── contexts/         # AuthContext, ThemeContext
+├── hooks/            # useProjects, useTasks, useTaskDetail, useProjectMembers
+├── lib/              # supabase.ts, kanban.ts, dates.ts, validation.ts
+└── pages/            # Auth, Home, NotFound
 
-- Deploy automático a cada push na branch `main`
-- Configuração via `vercel.json`
-- Variáveis de ambiente configuradas em **Settings → Environment Variables** no painel da Vercel
-
-### GitHub Actions (CI)
-
-- Pipeline definido em `.github/workflows/ci.yml`
-- Executa type check e build em cada push na `main`
-- Variáveis de ambiente placeholder injetadas no build do CI
-
----
-
-## Melhorias Futuras
-
-### Funcionalidades
-
-- Comentários em tarefas
-- Labels / tags em tarefas
-- Sub-tarefas ou checklists
-- Notificações de vencimento de tarefas
-- Exportação de dados (CSV, PDF)
-- Busca global entre todos os projetos
-- Edição inline de tarefas no board (sem abrir modal)
-- Painel de auditoria na interface (atualmente consultável apenas via Supabase Dashboard)
-
-### Técnicas
-
-- Diferenciação prática de permissões entre `admin` e `member`
-- Aplicação completa do dark mode na UI
-- Paginação ou virtualização de listas para alto volume de tarefas
-- Testes automatizados (unitários, integração, e2e)
-- Remoção do componente `Map.tsx` (não integrado ao fluxo)
+server/               # Express (serve static + rate limit + helmet)
+shared/               # types.ts, const.ts
+supabase/             # schema.sql
+```
 
 ---
 

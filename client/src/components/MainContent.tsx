@@ -12,7 +12,7 @@ import { useState, useMemo } from "react";
 import { KanbanBoard } from "./KanbanBoard";
 import { CalendarView } from "./CalendarView";
 import { NewTaskDialog } from "./NewTaskDialog";
-import { EditTaskDialog } from "./EditTaskDialog";
+import { TaskDetailModal } from "./TaskDetailModal";
 import { ManageMembersDialog } from "./ManageMembersDialog";
 import {
   Task,
@@ -220,14 +220,12 @@ export function MainContent({
         onSubmit={onAddTask}
       />
 
-      <EditTaskDialog
+      <TaskDetailModal
         task={editingTask}
-        members={members}
         open={!!editingTask}
-        onOpenChange={open => {
-          if (!open) setEditingTask(null);
-        }}
-        onSubmit={onUpdateTask}
+        onOpenChange={open => { if (!open) setEditingTask(null); }}
+        members={members}
+        projects={projects}
       />
 
       {selectedProjectId && (

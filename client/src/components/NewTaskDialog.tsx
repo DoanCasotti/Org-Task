@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -118,12 +119,13 @@ export function NewTaskDialog({
 
           <div>
             <Label htmlFor="taskDesc">Descrição (opcional)</Label>
-            <Input
+            <Textarea
               id="taskDesc"
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="Detalhes adicionais"
               className="mt-1"
+              rows={3}
             />
           </div>
 

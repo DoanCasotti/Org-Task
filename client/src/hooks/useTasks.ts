@@ -71,8 +71,8 @@ export function useTasks(projectId?: string | null) {
       if (error) throw error;
       return data as Task;
     },
-    onSuccess: (data) => {
-      logAudit("create", "task", data.id, { title: data.title, project_id: data.project_id });
+    onSuccess: async (data) => {
+      await logAudit("create", "task", data.id, { title: data.title, project_id: data.project_id }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Tarefa criada com sucesso");
     },
@@ -92,8 +92,8 @@ export function useTasks(projectId?: string | null) {
       if (error) throw error;
       return data as Task;
     },
-    onSuccess: (data) => {
-      logAudit("update", "task", data.id, { title: data.title, status: data.status });
+    onSuccess: async (data) => {
+      await logAudit("update", "task", data.id, { title: data.title, status: data.status }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
@@ -105,8 +105,8 @@ export function useTasks(projectId?: string | null) {
       if (error) throw error;
       return { id, title: task?.title };
     },
-    onSuccess: (data) => {
-      logAudit("delete", "task", data.id, { title: data.title });
+    onSuccess: async (data) => {
+      await logAudit("delete", "task", data.id, { title: data.title }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Tarefa removida");
     },
@@ -119,15 +119,21 @@ export function useTasks(projectId?: string | null) {
     mutationFn: async (
       tasks: { id: string; status: TaskStatus; order: number }[]
     ) => {
-      const updates = tasks.map(t =>
-        supabase
-          .from("tasks")
-          .update({ status: t.status, order: t.order })
-          .eq("id", t.id)
-      );
-      await Promise.all(updates);
+      const { error } = await supabase
+        .from('tasks')
+        .upsert(tasks.map(t => ({ id: t.id, status: t.status, order: t.order })));
+      if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
+      const statusChanges = variables.filter((t) => {
+        const current = (query.data ?? []).find(c => c.id === t.id);
+        return current && current.status !== t.status;
+      });
+
+      for (const t of statusChanges) {
+        await logAudit('update', 'task', t.id, { status: t.status, action: 'reorder' }).catch(() => {});
+      }
+
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: (error: Error) => {

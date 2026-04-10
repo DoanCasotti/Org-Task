@@ -43,6 +43,7 @@
 }
 
 :root {
+  --color-primary: #07477c;
   --primary: #ff6b35;
   --primary-foreground: #ffffff;
   --sidebar-primary: #ff6b35;

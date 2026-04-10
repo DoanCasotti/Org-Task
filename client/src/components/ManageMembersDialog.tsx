@@ -47,15 +47,26 @@ export function ManageMembersDialog({
     if (!email.trim()) return;
     setLoading(true);
     try {
-      // Buscar usuário pelo username
-      const { data: profile, error } = await supabase
+      const { data: profiles, error } = await supabase
         .from("profiles")
         .select("id, username")
-        .eq("username", email.trim())
-        .single();
+        .ilike("username", `%${email.trim()}%`)
+        .limit(5);
 
-      if (error || !profile) {
+      if (error || !profiles || profiles.length === 0) {
         toast.error("Usuário não encontrado. Verifique o nome de usuário.");
+        return;
+      }
+
+      const profile =
+        profiles.length === 1
+          ? profiles[0]
+          : profiles.find(
+              p => !members.some(m => m.user_id === p.id || m.profiles?.id === p.id)
+            );
+
+      if (!profile) {
+        toast.error("Todos os usuários encontrados já são membros do projeto.");
         return;
       }
 

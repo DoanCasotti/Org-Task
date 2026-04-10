@@ -42,7 +42,7 @@ export function CalendarView({ tasks, onTaskClick }: CalendarViewProps) {
     const map = new Map<string, Task[]>();
     tasks.forEach(task => {
       if (task.due_date) {
-        const key = format(new Date(task.due_date), "yyyy-MM-dd");
+        const key = task.due_date;
         if (!map.has(key)) map.set(key, []);
         map.get(key)!.push(task);
       }

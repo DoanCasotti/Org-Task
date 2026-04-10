@@ -28,9 +28,19 @@ export interface ProjectMember {
   profiles?: Profile;
 }
 
+export interface TaskComment {
+  id: string;
+  task_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  profiles?: Profile;
+}
+
 export interface Task {
   id: string;
   project_id: string;
+  parent_id: string | null;
   title: string;
   description: string | null;
   status: TaskStatus;

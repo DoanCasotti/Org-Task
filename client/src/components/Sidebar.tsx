@@ -11,6 +11,16 @@ import { useState } from "react";
 import { NewProjectDialog } from "./NewProjectDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { Project } from "@shared/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface SidebarProps {
   projects: Project[];
@@ -39,6 +49,7 @@ export function Sidebar({
 }: SidebarProps) {
   const { profile, signOut } = useAuth();
   const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   return (
     <>
@@ -136,7 +147,7 @@ export function Sidebar({
                     </div>
                   </button>
                   <button
-                    onClick={() => onDeleteProject(project.id)}
+                    onClick={() => setProjectToDelete(project.id)}
                     className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded"
                     title="Deletar projeto"
                   >
@@ -177,6 +188,29 @@ export function Sidebar({
           </div>
         </div>
       </aside>
+
+      <AlertDialog open={projectToDelete !== null} onOpenChange={open => !open && setProjectToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deletar projeto?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Todas as tarefas e membros serão permanentemente removidos. Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setProjectToDelete(null)}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={() => {
+                if (projectToDelete) onDeleteProject(projectToDelete);
+                setProjectToDelete(null);
+              }}
+            >
+              Deletar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <NewProjectDialog
         open={isNewProjectOpen}

@@ -8,8 +8,9 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Trash2, AlertCircle, Calendar } from "lucide-react";
-import { format, isPast, isToday } from "date-fns";
+import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { isTaskOverdue } from "@/lib/dates";
 
 interface TaskCardProps {
   task: Task;
@@ -40,11 +41,7 @@ export function TaskCard({
   canDelete = true,
 }: TaskCardProps) {
   const priority = priorityConfig[task.priority];
-  const isOverdue =
-    task.due_date &&
-    isPast(new Date(task.due_date)) &&
-    !isToday(new Date(task.due_date)) &&
-    task.status !== "done";
+  const isOverdue = isTaskOverdue(task.due_date ?? null, task.status);
   const assignee = task.profiles;
 
   return (

@@ -6,6 +6,7 @@ import {
 } from "@hello-pangea/dnd";
 import { Task, TaskStatus } from "@shared/types";
 import { TaskCard } from "./TaskCard";
+import { computeReorder } from "@/lib/kanban";
 
 interface KanbanBoardProps {
   tasks: Task[];
@@ -36,7 +37,7 @@ export function KanbanBoard({
     tasks.filter(t => t.status === status).sort((a, b) => a.order - b.order);
 
   const handleDragEnd = (result: DropResult) => {
-    const { source, destination, draggableId } = result;
+    const { source, destination } = result;
     if (!destination) return;
     if (
       source.droppableId === destination.droppableId &&
@@ -47,36 +48,8 @@ export function KanbanBoard({
     const sourceStatus = source.droppableId as TaskStatus;
     const destStatus = destination.droppableId as TaskStatus;
 
-    const sourceTasks = [...getColumnTasks(sourceStatus)];
-    const destTasks =
-      sourceStatus === destStatus
-        ? sourceTasks
-        : [...getColumnTasks(destStatus)];
-
-    const [moved] = sourceTasks.splice(source.index, 1);
-
-    if (sourceStatus === destStatus) {
-      sourceTasks.splice(destination.index, 0, moved);
-      const updates = sourceTasks.map((t, i) => ({
-        id: t.id,
-        status: sourceStatus,
-        order: i,
-      }));
-      onReorder(updates);
-    } else {
-      destTasks.splice(destination.index, 0, { ...moved, status: destStatus });
-      const sourceUpdates = sourceTasks.map((t, i) => ({
-        id: t.id,
-        status: sourceStatus,
-        order: i,
-      }));
-      const destUpdates = destTasks.map((t, i) => ({
-        id: t.id,
-        status: destStatus,
-        order: i,
-      }));
-      onReorder([...sourceUpdates, ...destUpdates]);
-    }
+    const updates = computeReorder(tasks, sourceStatus, destStatus, source.index, destination.index);
+    onReorder(updates);
   };
 
   return (

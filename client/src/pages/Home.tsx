@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Profile } from "@shared/types";
 
 export default function Home() {
-  const { user, uploadAvatar } = useAuth();
+  const { user } = useAuth();
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
     null
   );
@@ -18,10 +18,14 @@ export default function Home() {
   const [view, setView] = useState<"kanban" | "calendar">("kanban");
 
   const { projects, addProject, deleteProject } = useProjects();
-  const { tasks, addTask, updateTask, deleteTask, reorderTasks } =
-    useTasks(selectedProjectId);
+  const { tasks: allTasks, isLoading: tasksLoading, addTask, updateTask, deleteTask, reorderTasks } =
+    useTasks(null);
   const { members, addMember, removeMember } =
     useProjectMembers(selectedProjectId);
+
+  const displayTasks = selectedProjectId
+    ? allTasks.filter(t => t.project_id === selectedProjectId)
+    : allTasks;
 
   const memberProfiles: Profile[] = useMemo(() => {
     return members.map(m => m.profiles).filter((p): p is Profile => !!p);
@@ -29,29 +33,13 @@ export default function Home() {
 
   const taskCounts = useMemo(() => {
     const counts: Record<string, { total: number; completed: number }> = {};
-    tasks.forEach(t => {
-      if (!counts[t.project_id])
-        counts[t.project_id] = { total: 0, completed: 0 };
+    allTasks.forEach(t => {
+      if (!counts[t.project_id]) counts[t.project_id] = { total: 0, completed: 0 };
       counts[t.project_id].total++;
-      if (t.status === "done") counts[t.project_id].completed++;
+      if (t.status === 'done') counts[t.project_id].completed++;
     });
     return counts;
-  }, [tasks]);
-
-  // When viewing all projects, we need all tasks
-  const allTasks = useTasks(null);
-  const displayTasks = selectedProjectId ? tasks : allTasks.tasks;
-
-  const allTaskCounts = useMemo(() => {
-    const counts: Record<string, { total: number; completed: number }> = {};
-    allTasks.tasks.forEach(t => {
-      if (!counts[t.project_id])
-        counts[t.project_id] = { total: 0, completed: 0 };
-      counts[t.project_id].total++;
-      if (t.status === "done") counts[t.project_id].completed++;
-    });
-    return counts;
-  }, [allTasks.tasks]);
+  }, [allTasks]);
 
   const handleSelectProject = (projectId: string | null) => {
     setSelectedProjectId(projectId);
@@ -59,7 +47,9 @@ export default function Home() {
   };
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
-  const isProjectOwner = selectedProject?.created_by === user?.id;
+  const isProjectOwner =
+    selectedProject?.created_by === user?.id ||
+    members.some(m => m.user_id === user?.id && m.role === 'owner');
 
   return (
     <div className="flex h-screen bg-white relative">
@@ -83,7 +73,7 @@ export default function Home() {
           onCreateProject={data => addProject.mutate(data)}
           view={view}
           onViewChange={setView}
-          taskCounts={allTaskCounts}
+          taskCounts={taskCounts}
         />
       </div>
 
@@ -101,6 +91,11 @@ export default function Home() {
           <span className="font-semibold text-gray-900">Task Manager</span>
         </div>
 
+        {tasksLoading && allTasks.length === 0 && (
+          <div className="flex items-center justify-center h-32">
+            <div className="animate-spin w-6 h-6 border-2 border-[#07477c] border-t-transparent rounded-full" />
+          </div>
+        )}
         <MainContent
           selectedProjectId={selectedProjectId}
           projects={projects}
