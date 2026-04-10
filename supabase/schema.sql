@@ -105,6 +105,15 @@ create policy "Owner insere membros"
     )
   );
 
+-- Função auxiliar (necessária antes das policies de tasks)
+create or replace function public.is_project_member(p_project_id uuid)
+returns boolean as $$
+  select exists(
+    select 1 from public.project_members
+    where project_id = p_project_id and user_id = auth.uid()
+  );
+$$ language sql security definer stable;
+
 -- Tasks
 drop policy if exists "Membros veem tarefas do projeto" on public.tasks;
 create policy "Membros veem tarefas do projeto"
@@ -198,18 +207,8 @@ create policy "Sistema insere auditoria"
   with check (user_id = auth.uid());
 
 -- ============================================================
--- PASSO 6: Função auxiliar para verificar membership (sem recursão RLS)
+-- PASSO 6: Constraint de username
 -- ============================================================
-
-create or replace function public.is_project_member(p_project_id uuid)
-returns boolean as $$
-  select exists(
-    select 1 from public.project_members
-    where project_id = p_project_id and user_id = auth.uid()
-  );
-$$ language sql security definer stable;
-
--- Constraint de formato de username
 ALTER TABLE public.profiles
   DROP CONSTRAINT IF EXISTS username_format;
 ALTER TABLE public.profiles
