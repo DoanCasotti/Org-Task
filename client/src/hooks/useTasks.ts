@@ -65,6 +65,7 @@ export function useTasks(projectId?: string | null) {
           description: input.description?.trim() || null,
           status: "todo" as TaskStatus,
           priority: input.priority || "medium",
+          start_date: input.start_date || new Date().toISOString().split("T")[0],
           order: maxOrder,
           created_by: user!.id,
         })

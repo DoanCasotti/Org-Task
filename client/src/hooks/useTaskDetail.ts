@@ -68,6 +68,7 @@ export function useTaskDetail(taskId: string | null) {
   const addSubtask = useMutation({
     mutationFn: async (title: string) => {
       if (!taskId || !taskQuery.data) throw new Error('Tarefa não encontrada');
+      const today = new Date().toISOString().split('T')[0];
       const { data, error } = await supabase
         .from('tasks')
         .insert({
@@ -76,6 +77,7 @@ export function useTaskDetail(taskId: string | null) {
           parent_id: taskId,
           status: 'todo',
           priority: 'medium',
+          start_date: today,
           order: subtasksQuery.data?.length ?? 0,
           created_by: user!.id,
         })

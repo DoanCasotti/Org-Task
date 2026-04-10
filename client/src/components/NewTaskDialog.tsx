@@ -193,9 +193,9 @@ export function NewTaskDialog({
 
           <div>
             <Label>Atribuir a</Label>
-            <Select value={assignedTo || "none"} onValueChange={v => setAssignedTo(v === "none" ? "" : v)}>
+            <Select value={assignedTo || "none"} onValueChange={v => setAssignedTo(v === "none" ? "" : v)} disabled={!selectedProjectId}>
               <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Ninguém" />
+                <SelectValue placeholder={selectedProjectId ? "Ninguém" : "Selecione um projeto primeiro"} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Ninguém</SelectItem>
