@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { TaskPriority, Project, Profile } from "@shared/types";
 import { useState, useEffect } from "react";
+import { useProjectMembers } from "@/hooks/useProjectMembers";
 
 interface NewTaskDialogProps {
   projectId: string | null;
@@ -40,23 +41,29 @@ interface NewTaskDialogProps {
 export function NewTaskDialog({
   projectId,
   projects,
-  members,
+  members: membersProp,
   open,
   onOpenChange,
   onSubmit,
 }: NewTaskDialogProps) {
-  const today = new Date().toISOString().split("T")[0];
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("medium");
   const [selectedProjectId, setSelectedProjectId] = useState(projectId || "");
-  const [startDate, setStartDate] = useState(today);
+  const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
 
+  // Busca membros do projeto selecionado no dialog
+  const { members: projectMembers } = useProjectMembers(selectedProjectId || null);
+  const members: Profile[] = projectMembers
+    .map(m => m.profiles)
+    .filter((p): p is Profile => !!p);
+
   useEffect(() => {
     if (open) {
+      const today = new Date().toISOString().split("T")[0];
       setSelectedProjectId(projectId || "");
       setTitle("");
       setDescription("");
